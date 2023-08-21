@@ -7,3 +7,6 @@ class TSPredictor:
 
     def predict(self, model, data):
         pass
+
+    def load_model(self, model_path):
+        pass
