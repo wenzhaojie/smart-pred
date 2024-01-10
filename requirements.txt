@@ -1,8 +1,8 @@
 pandas
 matplotlib
 git+https://github.com/wenzhaojie/py-plotter
+torch
+torchvision
+torchaudio
 numpy
-kubernetes
-redis
-psutil
-json5
+pytorch-forecasting
