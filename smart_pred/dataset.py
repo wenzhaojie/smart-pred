@@ -8,12 +8,9 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm
 import pickle
 import time
-from src.utils.trace import generate_invocation_in_second
 import math
-from src.utils.trace import is_simple_period, is_idle_rate_filter, is_avg_rate_filter, cal_diff
 from tqdm import tqdm
 from random import sample
-from src.utils.plot import Plotter
 
 from typing import TypeVar
 
