@@ -270,6 +270,7 @@ def generate_processed_dataset(num_of_app=10, output_pickle_root="../analysis/pr
 
     # app的set list
     app_set_list = list(dataset_obj.app_df_dict.keys())
+    print(f"一共有 {len(app_set_list)} 个app")
 
     # 取前num_of_app个app, 如果大于app的总数，就取所有的app
     # 如果num_of_app为None，就取所有的app
@@ -305,7 +306,7 @@ if __name__ == "__main__":
     # test.test_cal_app_function_concurrency_at_timestamp()
     # test.test_cal_app_function_avg_concurrency_in_sec_with_ms()
 
-    generate_processed_dataset(num_of_app=10)
+    generate_processed_dataset(num_of_app=120)
 
 
 
