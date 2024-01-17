@@ -262,7 +262,7 @@ def generate_processed_dataset(num_of_app=10, output_pickle_root="../analysis/pr
     # 我们按照每一个app来划分数据集，每一个app的处理任务作为一个进程任务
 
     dataset_obj = AzureFunction2021(
-        dataset_root=r"C:\Users\wenzh\PycharmProjects\smart-pred\datasets\AzureFunctionsInvocationTraceForTwoWeeksJan2021",
+        dataset_root=r"../datasets/AzureFunctionsInvocationTraceForTwoWeeksJan2021",
         original_file_name="AzureFunctionsInvocationTraceForTwoWeeksJan2021.txt"
     )
     dataset_obj.load_original_csv()
