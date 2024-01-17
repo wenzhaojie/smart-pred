@@ -289,7 +289,7 @@ def generate_processed_dataset(num_of_app=10, output_pickle_root="../analysis/pr
     for app_name in app_set_list:
         map_input_list.append((dataset_obj, app_name, output_pickle_root))
 
-    with multiprocessing.Pool(processes=cpu_count) as pool:
+    with multiprocessing.Pool(processes=16) as pool:
         map_output_list = pool.map(process_app, map_input_list)
 
     print(map_output_list)
