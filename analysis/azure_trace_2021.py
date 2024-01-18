@@ -252,7 +252,7 @@ def process_app(args):
 
 
 
-def generate_processed_dataset(num_of_app=10, output_pickle_root="../analysis/processed_dataset"):
+def generate_processed_dataset(num_of_app=10, output_pickle_root="../analysis/avg_concurrency_in_sec_by_app"):
     # 创建output_csv_root文件夹
     if not os.path.exists(output_pickle_root):
         os.mkdir(output_pickle_root)
