@@ -1,3 +1,4 @@
+import copy
 import time
 import numpy as np
 from sklearn.preprocessing import StandardScaler
@@ -21,6 +22,8 @@ class Basic_model:
             "is_scaler": False,
             "use_future": True,
             "is_round": False,
+            "period_length": 1440,
+            "start_at_period": 0,
         }
 
     def get_scaler(self):
@@ -55,42 +58,34 @@ class Basic_model:
         """
         return np.zeros(predict_window)
 
-    def rolling_predict(self, history, predict_window, test=None, use_future=True, extra_parameters=None):
+    def rolling_predict(self, history, predict_window, extra_parameters=None):
         """
         滚动预测函数。
         参数:
         - history: 用于预测的历史数据。
         - predict_window: 预测窗口大小。
-        - test: 用于评估预测性能的测试数据。
-        - use_future: 是否使用未来数据。
         - extra_parameters: 附加参数。
         """
         # 如果没有提供额外参数，则使用默认参数
         if extra_parameters is None:
             extra_parameters = self.default_extra_parameters
+        else:
+            # 如果提供了额外参数，则使用默认参数补充额外参数
+            for key, value in self.default_extra_parameters.items():
+                if key not in extra_parameters:
+                    extra_parameters[key] = value
 
-        try:
-            seq_len = extra_parameters["seq_len"]
-            pred_len = extra_parameters["pred_len"]
-        except Exception as e:
-            seq_len = self.default_extra_parameters["seq_len"]
-            pred_len = self.default_extra_parameters["pred_len"]
-            print(e)
+        seq_len = extra_parameters["seq_len"]
+        pred_len = extra_parameters["pred_len"]
+        period_length = extra_parameters["period_length"]
 
         # 转换历史数据为列表格式
         history = list(history)
 
         predict_list = []  # 存储预测结果
-        compute_t_list = []  # 存储计算时间
         pointer = 0  # 指针，用于遍历历史数据
 
-        # 判断是否使用测试数据
-        if use_future:
-            assert len(test) == predict_window
-            history_add = list(test)
-        else:
-            history_add = predict_list
-
+        history_add = predict_list
         while len(predict_list) < predict_window:
             # 获取输入数据
             if pointer < seq_len:
@@ -100,7 +95,7 @@ class Basic_model:
                 history_base = []
                 train = history_base + history_add[pointer - seq_len:pointer]
 
-            start_at_period = int(pointer) % 1440
+            start_at_period = int(pointer) % period_length
             extra_parameters["start_at_period"] = start_at_period
 
             assert len(train) == seq_len
@@ -109,48 +104,7 @@ class Basic_model:
             predict_list.extend(predict)
             pointer += pred_len
 
-        # 使用历史误差进行预测结果修正
-        history_error_correct = extra_parameters["history_error_correct"]
         predict = predict_list
-        max_error = 1
-        history_error = 1
-
-        if history_error_correct:
-            corrected_predict = []
-            for index, (pred, true) in enumerate(zip(predict, test)):
-                # 修正预测值
-                if index == 0:  # 第一个预测值不进行修正
-                    corrected_value = pred
-                    if pred < 1:  # 如果预测值小于1，则不进行历史误差修正
-                        history_error = 1
-                    else:
-                        # 计算历史误差比例
-                        history_error = float(true / pred)
-                        # 限制历史误差比例的范围
-                        if history_error < 1 - max_error:
-                            history_error = 1 - max_error
-                        elif history_error > 1 + max_error:
-                            history_error = 1 + max_error
-
-                else:
-                    # 用历史误差比例修正预测值
-                    corrected_value = history_error * pred
-                    if pred < 1:
-                        history_error = 1
-                    else:
-                        # 更新历史误差比例
-                        history_error = float(true / pred)
-                        # 同样限制历史误差比例的范围
-                        if history_error < 1 - max_error:
-                            history_error = 1 - max_error
-                        elif history_error > 1 + max_error:
-                            history_error = 1 + max_error
-
-                # 将修正后的预测值添加到列表中
-                corrected_predict.append(corrected_value)
-            # 将修正后的预测列表转换为数组
-            predict = np.array(corrected_predict)
-
         # 最后收尾阶段
         # 有可能预测超出了我们所需要的范围，所以需要截断
         rolling_predict = predict[:predict_window]
@@ -163,7 +117,6 @@ class Basic_model:
         - train: 训练数据。
         - test: 测试数据。
         - extra_parameters: 附加参数。
-        - plotter: 绘图工具。
         """
         use_future = extra_parameters["use_future"]
         is_round = extra_parameters["is_round"]
@@ -189,8 +142,6 @@ class Basic_model:
         predict = self.rolling_predict(
             history=train,
             predict_window=len(test),
-            test=test,
-            use_future=use_future,
             extra_parameters=extra_parameters
         )
         predict_t = time.time() - start_t  # 计算时间

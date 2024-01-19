@@ -2,8 +2,5 @@ pandas
 matplotlib
 git+https://github.com/wenzhaojie/py-plotter
 git+https://github.com/wenzhaojie/smart-pred
-torch
-torchvision
-torchaudio
 numpy
 pytorch-forecasting
