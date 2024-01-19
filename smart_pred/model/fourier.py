@@ -203,13 +203,18 @@ class Icebreaker_model(Basic_model):
         return list(predict)
 
 
-if __name__ == "__main__":
-    # my_model = Crane_dsp_model()
-    my_model = Icebreaker_model()
 
-    history = [1, 2, 3, 2, 1, 2, 3, 2, 1, 2]
+
+if __name__ == "__main__":
+    my_model = Crane_dsp_model()
+    # my_model = Icebreaker_model()
+
+    history = [1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1, 2, 3, 2, 1]
     extra_parameters = {
-        "seq_len": 10,
-        "pred_len": 1
+        "seq_len": 15,
+        "pred_len": 1,
+        "history_error_correct": False,
     }
-    my_model.rolling_predict(history=history, predict_window=10, extra_parameters=extra_parameters)
+    result = my_model.rolling_predict(history=history, predict_window=10, use_future=False, extra_parameters=extra_parameters)
+    print(f"result:{result}")
+    print(f"len(result):{len(result)}")

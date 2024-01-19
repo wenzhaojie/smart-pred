@@ -1,16 +1,16 @@
 import time
-
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-
 from smart_pred.utils.metrics import get_metric_dict
-
 
 class Basic_model:
     def __init__(self, name="Basic_model", scaler=StandardScaler()):
-        # 初始化一些必要的参数  
-        # print(f"正在初始化Basic_model!")
-        # print(f"Basic_model scaler:{scaler}")
+        """
+        模型初始化函数。
+        参数:
+        - name: 模型的名字，默认为"Basic_model"。
+        - scaler: 数据的标准化处理器，默认使用StandardScaler。
+        """
         self.scaler = scaler
         self.name = name
         self.default_extra_parameters = {
@@ -22,35 +22,51 @@ class Basic_model:
             "use_future": True,
             "is_round": False,
         }
-        pass
 
     def get_scaler(self):
+        """
+        获取当前模型使用的数据标准化处理器。
+        """
         print(f"self.scaler:{self.scaler}")
         return self.scaler
 
     def get_name(self):
+        """
+        获取当前模型的名称。
+        """
         print(f"self.name:{self.name}")
 
     def train(self, history, extra_parameters=None):
-        # 最开始需要训练  
+        """
+        训练模型的函数。
+        参数:
+        - history: 训练数据。
+        - extra_parameters: 附加参数。
+        """
         pass
 
     def predict(self, history, predict_window, extra_parameters=None):
-        # 使用一段历史序列来预测未来的值
+        """
+        预测函数。
+        参数:
+        - history: 用于预测的历史数据。
+        - predict_window: 预测窗口大小。
+        - extra_parameters: 附加参数。
+        """
         return np.zeros(predict_window)
 
     def rolling_predict(self, history, predict_window, test=None, use_future=True, extra_parameters=None):
-        # 滚动预测
-        # history: 用于预测的历史数据
-        # predict_window: 预测目标长度
-        # test: 用于回测预测效果
-        '''
-        extra_parameters = {
-            seq_len: 每一步预测输入模型的长度
-            pred_len: 每一步预测输出模型的长度
-        }
-        '''
-        if extra_parameters == None:
+        """
+        滚动预测函数。
+        参数:
+        - history: 用于预测的历史数据。
+        - predict_window: 预测窗口大小。
+        - test: 用于评估预测性能的测试数据。
+        - use_future: 是否使用未来数据。
+        - extra_parameters: 附加参数。
+        """
+        # 如果没有提供额外参数，则使用默认参数
+        if extra_parameters is None:
             extra_parameters = self.default_extra_parameters
 
         try:
@@ -61,23 +77,22 @@ class Basic_model:
             pred_len = self.default_extra_parameters["pred_len"]
             print(e)
 
-        # 为了方便,转换成list格式的数据
+        # 转换历史数据为列表格式
         history = list(history)
 
-        # 预测的结果需要存放
-        predict_list = []
-        compute_t_list = []
-        pointer = 0
+        predict_list = []  # 存储预测结果
+        compute_t_list = []  # 存储计算时间
+        pointer = 0  # 指针，用于遍历历史数据
 
-        # 是否使用test数据?
-        if use_future == True:
+        # 判断是否使用测试数据
+        if use_future:
             assert len(test) == predict_window
             history_add = list(test)
         else:
             history_add = predict_list
 
         while len(predict_list) < predict_window:
-            # 获取 input
+            # 获取输入数据
             if pointer < seq_len:
                 history_base = history[-seq_len + pointer:]
                 train = history_base + history_add[:pointer]
@@ -94,16 +109,17 @@ class Basic_model:
             predict_list.extend(predict)
             pointer += pred_len
 
-        # 如果使用过去的误差比例来修正
+        # 使用历史误差进行预测结果修正
         history_error_correct = extra_parameters["history_error_correct"]
         predict = predict_list
         max_error = 1
         history_error = 1
 
+
         if history_error_correct:
             corrected_predict = []
             for index, (pred, true) in enumerate(zip(predict, test)):
-
+                # 修正预测值
                 if index == 0:  # 最开始不做修正
                     corrected_value = pred
                     if pred < 1:  # 如果预测值小于1，不做修正
@@ -133,19 +149,19 @@ class Basic_model:
             predict = np.array(corrected_predict)
 
         # 最后收尾阶段
-        # 有可能预测超出了我们所需要的
+        # 有可能预测超出了我们所需要的范围，所以需要截断
         rolling_predict = predict[:predict_window]
         return np.array(rolling_predict)
 
     def evaluate(self, train, test, extra_parameters=None, plotter=None):
-        '''
-        用于评估模型的效果
-        train: 训练数据
-        test: 预测真实的数据
-        is_scaler: 是否使用归一化
-        use_future: 是否用真实的值来滚动测试性能
-        is_round: 是否将预测的连续结果转换成整数
-        '''
+        """
+        模型评估函数。
+        参数:
+        - train: 训练数据。
+        - test: 测试数据。
+        - extra_parameters: 附加参数。
+        - plotter: 绘图工具。
+        """
         use_future = extra_parameters["use_future"]
         is_round = extra_parameters["is_round"]
         is_scaler = extra_parameters["is_scaler"]
@@ -187,8 +203,6 @@ class Basic_model:
             for num in predict:
                 round_predict.append(max(0, round(num)))
             predict = round_predict
-
-        print(f"flag")
 
         # 指标计算
         metrics_dict = get_metric_dict(y_pred=predict, y_test=test)
