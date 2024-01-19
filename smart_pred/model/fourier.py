@@ -1,5 +1,3 @@
-# This file is used to define the fourier model
-
 from smart_pred.model.base import Basic_model
 from sklearn.preprocessing import MinMaxScaler
 
@@ -28,11 +26,10 @@ class Crane_dsp_model(Basic_model):
             "use_future": True,
             "is_round": False,
         }
-        # print(f"self.scaler:{self.scaler}")
         pass
 
     def predict(self, history, predict_window, extra_parameters=None):
-        # 方法独有的参数
+        # 首先尝试从额外参数中获取一些特定的参数值，如果没有提供，则设置为None
         try:
             minNumOfSpectrumItems = extra_parameters["minNumOfSpectrumItems"]
             maxNumOfSpectrumItems = extra_parameters["maxNumOfSpectrumItems"]
@@ -48,91 +45,79 @@ class Crane_dsp_model(Basic_model):
             marginFraction = None
             defaultFFTMinValue = None
 
+        # 设置参数的默认值
         defaultMinNumOfSpectrumItems = 3
         defaultMaxNumOfSpectrumItems = 100
         defaultHighFrequencyThreshold = 1 / (60.0 * 60.0)
         defaultLowAmplitudeThreshold = 1
-
-        # defaultFFTMarginFraction = 0.1
         defaultFFTMarginFraction = 0
         defaultFFTMinValue = 0.01
 
-        if minNumOfSpectrumItems == None or minNumOfSpectrumItems == 0:
+        # 如果参数值未提供或为0，则使用默认值
+        if minNumOfSpectrumItems is None or minNumOfSpectrumItems == 0:
             minNumOfSpectrumItems = defaultMinNumOfSpectrumItems
-        if maxNumOfSpectrumItems == None or maxNumOfSpectrumItems == 0:
+        if maxNumOfSpectrumItems is None or maxNumOfSpectrumItems == 0:
             maxNumOfSpectrumItems = defaultMaxNumOfSpectrumItems
-        if highFrequencyThreshold == None or highFrequencyThreshold == 0:
+        if highFrequencyThreshold is None or highFrequencyThreshold == 0:
             highFrequencyThreshold = defaultHighFrequencyThreshold
-        if lowAmplitudeThreshold == None or lowAmplitudeThreshold == 0:
+        if lowAmplitudeThreshold is None or lowAmplitudeThreshold == 0:
             lowAmplitudeThreshold = defaultLowAmplitudeThreshold
-        if marginFraction == None or marginFraction == 0:
+        if marginFraction is None or marginFraction == 0:
             marginFraction = defaultFFTMarginFraction
 
         x = history
         n_predict = predict_window
 
-        # 开始逻辑
+        # 对历史数据应用快速傅里叶变换(FFT)
         X = fft.fft(x)
 
         sampleLength = len(X)
         sampleRate = 1.0 / 60
         frequencies = []
         amplitudes = []
+
+        # 遍历频域数据，计算频率和振幅
         for k in range(len(X)):
-            frequencie = float(k) * sampleRate / sampleLength  # 计算频域数据
+            frequencie = float(k) * sampleRate / sampleLength
             frequencies.append(frequencie)
             amplitude = abs(X[k]) / sampleLength
             amplitudes.append(amplitude)
 
-            # 第一个是直流分量，去除
-        # print(f"len(amplitudes):{len(amplitudes)}")
+        # 去除直流分量，并按振幅降序排序
         amplitudes = amplitudes[1: int(len(amplitudes) / 2)]
-        amplitudes.sort(reverse=True)  # 按振幅降序
-        # print(f"振幅降序:{amplitudes}")
+        amplitudes.sort(reverse=True)
 
+        # 设置最小振幅阈值
         if len(amplitudes) >= maxNumOfSpectrumItems:
             minAmplitude = amplitudes[maxNumOfSpectrumItems - 1]
         else:
-            minAmplitude = amplitudes[len(amplitudes) - 1]
+            minAmplitude = amplitudes[-1]
 
         if minAmplitude < lowAmplitudeThreshold:
             minAmplitude = lowAmplitudeThreshold
         if len(amplitudes) >= minNumOfSpectrumItems and amplitudes[minNumOfSpectrumItems - 1] < minAmplitude:
             minAmplitude = amplitudes[minNumOfSpectrumItems - 1]
 
+        # 过滤噪声：去除低于最小振幅阈值和高于高频阈值的频率分量
         for k in range(len(X)):
             amplitude = abs(X[k]) / sampleLength
-            if amplitude < minAmplitude and frequencies[k] > highFrequencyThreshold:  # 去除噪声
+            if amplitude < minAmplitude and frequencies[k] > highFrequencyThreshold:
                 X[k] = 0
 
-                # print(f"在逆变换之前的X:{X}")
-        # print(f"在逆变换之前的X[12]:{X[12]}")
-        # print(f"在逆变换之前的X[24]:{X[24]}")
-        # print(f"在逆变换之前的X[100]:{X[100]}")
-
-        x = fft.ifft(X)  # 傅里叶逆变换
-
-        # for i in x:
-        #     print(f"{i} \n")
-        # print(f"逆变换之后x[0]:{x[0]}")
-        # print(f"逆变换之后x[12]:{x[12]}")
-        # print(f"逆变换之后x[24]:{x[24]}")
-        # print(f"逆变换之后x[100]:{x[100]}")
+        # 应用傅里叶逆变换
+        x = fft.ifft(X)
 
         nSamples = len(x)
         nSamplesPerCycle = int(n_predict * 60 * sampleRate)
-        # print(f"nSamples:{nSamples}")
-        # print(f"nSamplesPerCycle:{nSamplesPerCycle}")
 
         output_list = []
+
+        # 生成预测结果
         for i in range(nSamples - nSamplesPerCycle, nSamples):
             a = x[i].real
-            # print(a)
             if a <= 0.0:
-                a = defaultFFTMinValue  # 如果小于等于0，就取 默认的 0.01
+                a = defaultFFTMinValue  # 对小于等于0的值应用默认最小值
             output_list.append(a * (1.0 + marginFraction))
-        # print(f"还原的序列为:{output_list}")
-        # print(f"还原的序列len(x):{len(output_list)}")
 
         return output_list
 
@@ -171,27 +156,19 @@ class Icebreaker_model(Basic_model):
         n_harm = harmonics  # number of harmonics in model
         t = np.arange(0, n)
         p = np.polyfit(t, x, 1)  # find linear trend in x
-        # print(f"p:{p}")
+
         x_notrend = x - p[0] * t  # detrended x # 非趋势项
         x_freqdom = fft.fft(x_notrend)  # detrended x in frequency domain
-        # print(f"x_freqdom:{x_freqdom}")
-        # print(f"len(x_freqdom):{len(x_freqdom)}")
+
         f = fft.fftfreq(n)  # frequencies
-        # for item in f:
-        #     print(f"frequencies:{item} \n")
-        # fig = plt.figure()
-        # plt.plot(f,"r")
-        # plt.show()
-        # plt.savefig("test.png")
+
         indexes = list(range(n))
+
         # sort indexes by frequency, lower -> higher
         indexes.sort(key=lambda i: np.absolute(f[i]))
-        # print(f"indexes:{indexes}")
 
         t = np.arange(0, n + n_predict)
-        # print(f"n:{n}")
-        # print(f"n_predict:{n_predict}")
-        # print(f"len(t):{len(t)}")
+
         restored_sig = np.zeros(t.size)
         for i in indexes[:1 + n_harm * 2]:
             ampli = np.absolute(x_freqdom[i]) / n  # amplitude
@@ -201,7 +178,6 @@ class Icebreaker_model(Basic_model):
 
         predict = res[-predict_window:]
         return list(predict)
-
 
 
 

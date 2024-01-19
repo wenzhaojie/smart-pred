@@ -115,37 +115,40 @@ class Basic_model:
         max_error = 1
         history_error = 1
 
-
         if history_error_correct:
             corrected_predict = []
             for index, (pred, true) in enumerate(zip(predict, test)):
                 # 修正预测值
-                if index == 0:  # 最开始不做修正
+                if index == 0:  # 第一个预测值不进行修正
                     corrected_value = pred
-                    if pred < 1:  # 如果预测值小于1，不做修正
+                    if pred < 1:  # 如果预测值小于1，则不进行历史误差修正
                         history_error = 1
                     else:
+                        # 计算历史误差比例
                         history_error = float(true / pred)
+                        # 限制历史误差比例的范围
                         if history_error < 1 - max_error:
                             history_error = 1 - max_error
                         elif history_error > 1 + max_error:
                             history_error = 1 + max_error
-                        else:
-                            pass
 
                 else:
+                    # 用历史误差比例修正预测值
                     corrected_value = history_error * pred
                     if pred < 1:
                         history_error = 1
                     else:
+                        # 更新历史误差比例
                         history_error = float(true / pred)
+                        # 同样限制历史误差比例的范围
                         if history_error < 1 - max_error:
                             history_error = 1 - max_error
                         elif history_error > 1 + max_error:
                             history_error = 1 + max_error
-                        else:
-                            pass
+
+                # 将修正后的预测值添加到列表中
                 corrected_predict.append(corrected_value)
+            # 将修正后的预测列表转换为数组
             predict = np.array(corrected_predict)
 
         # 最后收尾阶段
@@ -153,7 +156,7 @@ class Basic_model:
         rolling_predict = predict[:predict_window]
         return np.array(rolling_predict)
 
-    def evaluate(self, train, test, extra_parameters=None, plotter=None):
+    def evaluate(self, train, test, extra_parameters=None):
         """
         模型评估函数。
         参数:
@@ -219,27 +222,4 @@ class Basic_model:
         log_dict.update(metrics_dict)
         print(f"log:{log_dict}")
 
-        # 画图
-        if plotter != None:
-            print(f"开始画图")
-            plotter.plot_lines(
-                y_list=[predict, test],
-                y_label_list=["Predict", "Real"],
-                x_label="Timestamp (min)",
-                y_label="Concurrency",
-                title=plotter.title,
-                save_root=plotter.save_root,
-                filename=f"Predict vs Real {self.name}",
-            )
-            for i in range(24):
-                plotter.plot_lines(
-                    y_list=[predict[i * 60:(i + 1) * 60], test[i * 60:(i + 1) * 60]],
-                    y_label_list=["Predict", "Real"],
-                    x_label="Timestamp (min)",
-                    y_label="Concurrency",
-                    title=plotter.title,
-                    save_root=plotter.save_root,
-                    filename=f"Evaluation {i}th Hour {self.name}",
-                )
-
-        return log_dict, predict
+        return log_dict
