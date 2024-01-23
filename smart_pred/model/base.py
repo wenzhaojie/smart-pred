@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from smart_pred.utils.metrics import get_metric_dict
 
 class Basic_model:
-    def __init__(self, name="Basic_model", scaler=StandardScaler()):
+    def __init__(self, name="Basic_model", scaler=StandardScaler(), model_parameters=None):
         """
         模型初始化函数。
         参数:
@@ -25,6 +25,7 @@ class Basic_model:
             "period_length": 1440,
             "start_at_period": 0,
         }
+        self.model_parameters = model_parameters
 
     def get_scaler(self):
         """
