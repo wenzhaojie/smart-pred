@@ -90,7 +90,6 @@ class GluonTS_model(Basic_model):
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
                 freq=self.model_parameters["freq"],
-                trainer_kwargs={"max_epochs": 5}
             )
 
         self.predictor = self.model.train(train_ds)
