@@ -94,8 +94,8 @@ def Test():
     y = np.sin(x)
     # extra_parameters
     extra_parameters = {
-        "seq_len": 512,
-        "pred_len": 128,
+        "seq_len": 200,
+        "pred_len": 10,
         "freq": "1min",
     }
     # 分别测试不同的模型
@@ -107,7 +107,7 @@ def Test():
         print(f"测试 {model_name} 模型")
         model = GluonTS_model(name=model_name, model_parameters=extra_parameters)
         model.train(history=y, extra_parameters=extra_parameters)
-        predict = model.predict(history=y, predict_window=128, extra_parameters=extra_parameters)
+        predict = model.predict(history=y, predict_window=10, extra_parameters=extra_parameters)
         print(f"predict: {predict}")
 
         print(f"测试 {model_name} 模型结束")
