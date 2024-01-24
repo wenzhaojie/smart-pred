@@ -103,7 +103,7 @@ def Test():
     ]
     for model_name in model_names:
         print(f"测试 {model_name} 模型")
-        model = GluonTS_model(name=model_name)
+        model = GluonTS_model(name=model_name, model_parameters=extra_parameters)
         model.train(history=y, extra_parameters=extra_parameters)
         predict = model.predict(history=y, predict_window=10, extra_parameters=extra_parameters)
         print(f"predict: {predict}")
