@@ -1,14 +1,11 @@
 import numpy as np
 import pandas as pd
 from gluonts.dataset.common import ListDataset
-from gluonts.mx import SimpleFeedForwardEstimator, NBEATSEstimator, LSTNetEstimator, WaveNetEstimator
+from gluonts.mx import SimpleFeedForwardEstimator, DeepStateEstimator, NBEATSEstimator, LSTNetEstimator, WaveNetEstimator
 from gluonts.torch import DeepAREstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
 from smart_pred.model.base import Basic_model
-
-# CUDA_VISIBLE_DEVICES=0 python gluonts_model.py
-
 
 
 class GluonTS_model(Basic_model):
@@ -46,13 +43,27 @@ class GluonTS_model(Basic_model):
                 context_length=self.model_parameters["seq_len"],
                 trainer=trainer
             )
-        elif self.name == "NBEATS":
-            trainer = GluonTrainer(epochs=20, )
-
-            self.model = NBEATSEstimator(
+        elif self.name == "DeepAR":
+            self.model = DeepStateEstimator(
+                freq=self.model_parameters["freq"],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
+                trainer_kwargs={"max_epochs": 5}
+            )
+        elif self.name == "NBEATS":
+            trainer = GluonTrainer(epochs=5, )
+            self.model = NBEATSEstimator(
                 freq=self.model_parameters["freq"],
+                prediction_length=self.model_parameters["pred_len"],
+                context_length=self.model_parameters["seq_len"],
+                trainer=trainer
+            )
+        elif self.name == "LSTNet":
+            trainer = GluonTrainer(epochs=5, )
+            self.model = LSTNetEstimator(
+                freq=self.model_parameters["freq"],
+                prediction_length=self.model_parameters["pred_len"],
+                context_length=self.model_parameters["seq_len"],
                 trainer=trainer
             )
 
@@ -110,9 +121,10 @@ def Test():
     }
     # 分别测试不同的模型
     model_names = [
-        # "SimpleFeedForward",
-        # "DeepAR",
+        "SimpleFeedForward",
+        "DeepAR",
         "NBEATS",
+        "LSTNet",
     ]
 
 
