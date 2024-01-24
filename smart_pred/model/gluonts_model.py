@@ -104,24 +104,32 @@ def Test():
         "SimpleFeedForward",
         "DeepAR",
     ]
+
+    history = y[:-10]
+    real = y[-10:]
+
+    i = 0
     for model_name in model_names:
+        print(f"第 {i} 次测试")
+
         print(f"测试 {model_name} 模型")
         model = GluonTS_model(name=model_name, model_parameters=extra_parameters)
 
-        history = y[:-10]
+        print(f"模型 {model_name} 初始化完成")
+
         model.train(history=history, extra_parameters=extra_parameters)
 
         predict = model.predict(history=history, predict_window=10, extra_parameters=extra_parameters)
-        print(f"predict: {predict}")
 
-        real = y[-10:]
+        print(f"predict: {predict}")
         print(f"real: {real}")
 
         mae = np.mean(np.abs(predict - real))
 
         print(f"mae: {mae}")
-
         print(f"测试 {model_name} 模型结束")
+
+        i += 1
 
 
 if __name__ == "__main__":
