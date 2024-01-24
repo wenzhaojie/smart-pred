@@ -96,7 +96,7 @@ def Test():
     # extra_parameters
     extra_parameters = {
         "seq_len": 200,
-        "pred_len": 10,
+        "pred_len": 100,
         "freq": "1min",
     }
     # 分别测试不同的模型
@@ -105,8 +105,8 @@ def Test():
         "DeepAR",
     ]
 
-    history = y[:-10]
-    real = y[-10:]
+    history = y[:-100]
+    real = y[-100:]
 
     i = 0
     for model_name in model_names:
@@ -119,7 +119,7 @@ def Test():
 
         model.train(history=history, extra_parameters=extra_parameters)
 
-        predict = model.predict(history=history, predict_window=10, extra_parameters=extra_parameters)
+        predict = model.predict(history=history, predict_window=100, extra_parameters=extra_parameters)
 
         print(f"predict: {predict}")
         print(f"real: {real}")
