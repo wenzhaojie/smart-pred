@@ -3,7 +3,7 @@ import pandas as pd
 from gluonts.dataset.common import ListDataset
 from gluonts.mx import SimpleFeedForwardEstimator, NBEATSEstimator
 
-from gluonts.torch import DeepAREstimator, DLinearEstimator, WaveNetEstimator, PatchTSTEstimator, LagTSTEstimator, DeepNPTSEstimator  # 可以添加更多的模型
+from gluonts.torch import DeepAREstimator, DLinearEstimator, WaveNetEstimator, PatchTSTEstimator, LagTSTEstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
 from smart_pred.model.base import Basic_model
@@ -84,12 +84,6 @@ class GluonTS_model(Basic_model):
                 context_length=self.model_parameters["seq_len"],
                 freq=self.model_parameters["freq"],
                 trainer_kwargs={"max_epochs": 5}
-            )
-        elif self.name == "DeepNPTS":
-            self.model = DeepNPTSEstimator(
-                prediction_length=self.model_parameters["pred_len"],
-                context_length=self.model_parameters["seq_len"],
-                freq=self.model_parameters["freq"],
             )
 
         self.predictor = self.model.train(train_ds)
