@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from gluonts.dataset.common import ListDataset
-from gluonts.mx import SimpleFeedForwardEstimator, DeepStateEstimator, NBEATSEstimator, LSTNetEstimator, WaveNetEstimator
+from gluonts.mx import SimpleFeedForwardEstimator, NBEATSEstimator, LSTNetEstimator, WaveNetEstimator
 from gluonts.torch import DeepAREstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
@@ -43,22 +43,16 @@ class GluonTS_model(Basic_model):
                 context_length=self.model_parameters["seq_len"],
                 trainer=trainer
             )
-        elif self.name == "DeepAR":
-            self.model = DeepStateEstimator(
-                freq=self.model_parameters["freq"],
+        elif self.name == "NBEATS":
+            trainer = GluonTrainer(epochs=5, )
+
+            self.model = NBEATSEstimator(
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
-                trainer_kwargs={"max_epochs": 5}
-            )
-        elif self.name == "DeepState":
-            trainer = GluonTrainer(epochs=100, num_batches_per_epoch=50)
-            self.model = DeepStateEstimator(
                 freq=self.model_parameters["freq"],
-                cardinality=[1],
-                prediction_length=self.model_parameters["pred_len"],
-                use_feat_static_cat=False,
                 trainer=trainer
             )
+
 
 
         self.predictor = self.model.train(train_ds)
@@ -115,7 +109,7 @@ def Test():
     model_names = [
         # "SimpleFeedForward",
         # "DeepAR",
-        "DeepState",
+        "NBEATS",
     ]
 
 
