@@ -129,6 +129,13 @@ def Test():
         print(f"mae: {mae}")
         print(f"测试 {model_name} 模型结束")
 
+        # 画出预测结果
+        import matplotlib.pyplot as plt
+        plt.plot(real, color="black")
+        plt.plot(predict, color="red")
+        plt.legend(["True values", "Predict values"], loc="upper left", fontsize="xx-large")
+        # 保存图片
+        plt.savefig(f"model_{model_name}_mae_{mae}.pdf")
         i += 1
 
 
