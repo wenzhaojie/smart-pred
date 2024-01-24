@@ -34,7 +34,7 @@ class GluonTS_model(Basic_model):
         )
 
         # trainer
-        trainer = GluonTrainer(epochs=5)
+        trainer = GluonTrainer(epochs=5, )
 
         # 选择模型并训练
         if self.name == "SimpleFeedForward":
