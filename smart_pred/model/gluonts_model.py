@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from gluonts.dataset.common import ListDataset
-from gluonts.mx import SimpleFeedForwardEstimator, Trainer
+from gluonts.mx import SimpleFeedForwardEstimator, DeepStateEstimator, NBEATSEstimator, LSTNetEstimator, WaveNetEstimator
 from gluonts.torch import DeepAREstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
@@ -33,11 +33,10 @@ class GluonTS_model(Basic_model):
             freq=self.model_parameters["freq"]
         )
 
-        # trainer
-        trainer = GluonTrainer(epochs=5, )
-
         # 选择模型并训练
         if self.name == "SimpleFeedForward":
+            # trainer
+            trainer = GluonTrainer(epochs=5, )
             self.model = SimpleFeedForwardEstimator(
                 num_hidden_dimensions=[10],
                 prediction_length=self.model_parameters["pred_len"],
@@ -45,13 +44,21 @@ class GluonTS_model(Basic_model):
                 trainer=trainer
             )
         elif self.name == "DeepAR":
-            self.model = DeepAREstimator(
+            self.model = DeepStateEstimator(
                 freq=self.model_parameters["freq"],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
                 trainer_kwargs={"max_epochs": 5}
             )
-        # ... 添加其他模型的条件
+        elif self.name == "DeepState":
+            trainer = GluonTrainer(epochs=100, num_batches_per_epoch=50)
+            self.model = DeepStateEstimator(
+                freq=self.model_parameters["freq"],
+                prediction_length=self.model_parameters["pred_len"],
+                context_length=self.model_parameters["seq_len"],
+                trainer=trainer
+            )
+
 
         self.predictor = self.model.train(train_ds)
 
@@ -101,8 +108,9 @@ def Test():
     }
     # 分别测试不同的模型
     model_names = [
-        "SimpleFeedForward",
-        "DeepAR",
+        # "SimpleFeedForward",
+        # "DeepAR",
+        "DeepState",
     ]
 
     history = y[:-100]
