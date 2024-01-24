@@ -23,7 +23,7 @@ class GluonTS_model(Basic_model):
 
         print(f"初始化 {self.name}!")
 
-    def train(self, history, extra_parameters=None, model_parameters=None):
+    def train(self, history, extra_parameters=None):
         history = np.array(history)
         start = pd.Period("2022-01-01 00:00", freq=self.model_parameters["freq"])
 
@@ -87,6 +87,7 @@ class GluonTS_model(Basic_model):
 
         return pred
 
+
 def Test():
 
     # 用正弦函数生成数据，1000个点，周期为100
@@ -96,7 +97,7 @@ def Test():
     extra_parameters = {
         "seq_len": 200,
         "pred_len": 10,
-        "freq": "1min",
+        "freq": "minute",
     }
     # 分别测试不同的模型
     model_names = [
