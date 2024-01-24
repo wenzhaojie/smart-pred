@@ -121,9 +121,9 @@ def Test():
     }
     # 分别测试不同的模型
     model_names = [
-        "SimpleFeedForward",
-        "DeepAR",
-        "NBEATS",
+        # "SimpleFeedForward",
+        # "DeepAR",
+        # "NBEATS",
         "LSTNet",
     ]
 
