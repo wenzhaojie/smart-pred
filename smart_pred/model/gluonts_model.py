@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 from gluonts.dataset.common import ListDataset
-from gluonts.mx import SimpleFeedForwardEstimator, NBEATSEstimator, WaveNetEstimator
+from gluonts.mx import SimpleFeedForwardEstimator, NBEATSEstimator
 
-from gluonts.torch import DeepAREstimator, DLinearEstimator  # 可以添加更多的模型
+from gluonts.torch import DeepAREstimator, DLinearEstimator, WaveNetEstimator, PatchTSTEstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
 from smart_pred.model.base import Basic_model
@@ -60,16 +60,22 @@ class GluonTS_model(Basic_model):
                 trainer=trainer
             )
         elif self.name == "WaveNet":
-            trainer = GluonTrainer(epochs=5, )
             self.model = WaveNetEstimator(
                 prediction_length=self.model_parameters["pred_len"],
                 freq=self.model_parameters["freq"],
-                trainer=trainer,
             )
         elif self.name == "DLinear":
             self.model = DLinearEstimator(
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
+                trainer_kwargs={"max_epochs": 5}
+            )
+
+        elif self.name == "PatchTST":
+            self.model = PatchTSTEstimator(
+                prediction_length=self.model_parameters["pred_len"],
+                context_length=self.model_parameters["seq_len"],
+                patch_len=10,
                 trainer_kwargs={"max_epochs": 5}
             )
 
