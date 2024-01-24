@@ -47,7 +47,7 @@ class GluonTS_model(Basic_model):
                 trainer=trainer
             )
         elif self.name == "NBEATS":
-            trainer = GluonTrainer(epochs=5, )
+            trainer = GluonTrainer(epochs=20, )
 
             self.model = NBEATSEstimator(
                 prediction_length=self.model_parameters["pred_len"],
