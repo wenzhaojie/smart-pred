@@ -17,7 +17,7 @@ class GluonTS_model(Basic_model):
         self.default_model_parameters = {
             "pred_len": 24,
             "seq_len": 100,
-            "freq": "minute",
+            "freq": "1min",
         }
         self.model_parameters = model_parameters or self.default_model_parameters
 
@@ -97,7 +97,7 @@ def Test():
     extra_parameters = {
         "seq_len": 200,
         "pred_len": 10,
-        "freq": "minute",
+        "freq": "1min",
     }
     # 分别测试不同的模型
     model_names = [
