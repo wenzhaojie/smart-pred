@@ -49,7 +49,6 @@ class GluonTS_model(Basic_model):
                 freq=self.model_parameters["freq"],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
-                trainer=trainer
             )
         # ... 添加其他模型的条件
 
