@@ -67,7 +67,7 @@ class GluonTS_model(Basic_model):
                 trainer=trainer,
                 ar_window=24,
                 skip_size=24,
-                channels=128,
+                channels=144,
                 num_series=1,
                 kernel_size=6,
             )
