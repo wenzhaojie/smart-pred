@@ -62,7 +62,6 @@ class GluonTS_model(Basic_model):
         elif self.name == "LSTNet":
             trainer = GluonTrainer(epochs=5, )
             self.model = LSTNetEstimator(
-                freq=self.model_parameters["freq"],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
                 trainer=trainer,
