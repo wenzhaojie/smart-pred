@@ -141,6 +141,7 @@ def Test():
         # "NBEATS",
         "WaveNet",
         "DLinear",
+        "PatchTST",
     ]
 
     i = 0
