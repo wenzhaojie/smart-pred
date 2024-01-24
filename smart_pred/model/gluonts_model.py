@@ -96,6 +96,7 @@ def Test():
     extra_parameters = {
         "seq_len": 128,
         "pred_len": 10,
+        "freq": "1min",
     }
     # 分别测试不同的模型
     model_names = [
