@@ -17,7 +17,7 @@ class GluonTS_model(Basic_model):
         self.default_model_parameters = {
             "pred_len": 24,
             "seq_len": 100,
-            "freq": "1min",
+            "freq": "minute",
         }
         self.model_parameters = model_parameters or self.default_model_parameters
 
