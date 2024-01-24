@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from gluonts.dataset.common import ListDataset
 from gluonts.mx import SimpleFeedForwardEstimator, Trainer
-from gluonts.model import DeepAREstimator  # 可以添加更多的模型
+from gluonts.torch import DeepAREstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
 from smart_pred.model.base import Basic_model
