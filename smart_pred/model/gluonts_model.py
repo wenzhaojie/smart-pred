@@ -68,7 +68,7 @@ class GluonTS_model(Basic_model):
                 ar_window=24,
                 skip_size=24,
                 channels=144,
-                num_series=1,
+                num_series=0,
                 kernel_size=6,
             )
 
