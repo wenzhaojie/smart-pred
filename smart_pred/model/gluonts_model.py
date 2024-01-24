@@ -49,13 +49,11 @@ class GluonTS_model(Basic_model):
                 freq=self.model_parameters["freq"],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
+                trainer_kwargs={"max_epochs": 5}
             )
         # ... 添加其他模型的条件
 
         self.predictor = self.model.train(train_ds)
-
-        # 开始训练
-        self.model = self.model.train(train_ds)
 
 
     def predict(self, history, predict_window, extra_parameters=None):
@@ -96,8 +94,8 @@ def Test():
     y = np.sin(x)
     # extra_parameters
     extra_parameters = {
-        "seq_len": 128,
-        "pred_len": 10,
+        "seq_len": 512,
+        "pred_len": 128,
         "freq": "1min",
     }
     # 分别测试不同的模型
