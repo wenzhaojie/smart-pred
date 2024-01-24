@@ -69,7 +69,14 @@ class GluonTS_model(Basic_model):
                 skip_size=24,
                 channels=144,
                 num_series=0,
-                kernel_size=6,
+            )
+
+        elif self.name == "WaveNet":
+            trainer = GluonTrainer(epochs=5, )
+            self.model = WaveNetEstimator(
+                prediction_length=self.model_parameters["pred_len"],
+                freq=self.model_parameters["freq"],
+                trainer=trainer,
             )
 
         self.predictor = self.model.train(train_ds)
@@ -126,7 +133,7 @@ def Test():
         # "SimpleFeedForward",
         # "DeepAR",
         # "NBEATS",
-        "LSTNet",
+        "WaveNet"
     ]
 
     i = 0
