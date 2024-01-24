@@ -127,7 +127,7 @@ def Test():
     y = np.sin(x)
 
     seq_len = 200
-    pred_len = 20
+    pred_len = 100
 
 
     history = y[:-pred_len]
@@ -144,12 +144,12 @@ def Test():
     # 分别测试不同的模型
     model_names = [
         "SimpleFeedForward",
-        # "DeepAR",
-        # "NBEATS",
-        # "WaveNet",
-        # "DLinear",
-        # "PatchTST",
-        # "LagTST",
+        "DeepAR",
+        "NBEATS",
+        "WaveNet",
+        "DLinear",
+        "PatchTST",
+        "LagTST",
         "DeepNPTS",
     ]
 
