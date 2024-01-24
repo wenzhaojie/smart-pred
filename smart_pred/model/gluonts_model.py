@@ -169,7 +169,7 @@ def Test():
         print(f"predict: {predict}")
         print(f"real: {real}")
 
-        mae = np.mean(np.abs(predict - real))
+        mae = float(np.mean(np.abs(predict - real)))
 
         print(f"mae: {mae}")
         print(f"测试 {model_name} 模型结束")
@@ -181,7 +181,9 @@ def Test():
         plt.plot(predict, color="red")
         plt.legend(["True values", "Predict values"], loc="upper left", fontsize="xx-large")
         # 保存图片
-        plt.savefig(f"model_{model_name}_mae_{mae}.pdf")
+        # mae 保留两位小数
+        mae = round(mae, 2)
+        plt.savefig(f"model_{model_name}_mae_{mae}_seq_len_{seq_len}_pred_len_{pred_len}.png")
         plt.show()
         # 清理画布
         plt.clf()
