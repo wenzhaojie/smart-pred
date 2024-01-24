@@ -54,10 +54,9 @@ class GluonTS_model(Basic_model):
             trainer = GluonTrainer(epochs=100, num_batches_per_epoch=50)
             self.model = DeepStateEstimator(
                 freq=self.model_parameters["freq"],
-                cardinality=None,
+                cardinality=[0],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
-                use_feat_static_cat=False,
                 trainer=trainer
             )
 
