@@ -5,5 +5,3 @@ git+https://github.com/wenzhaojie/smart-pred
 numpy
 statsmodels
 scikit-learn
-paddlets==1.1.0
-protobuf==3.19.0
