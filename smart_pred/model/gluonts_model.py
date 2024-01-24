@@ -119,13 +119,19 @@ def Test():
     x = np.linspace(0, 100, 1000)
     y = np.sin(x)
 
-    history = y[:-100]
-    real = y[-100:]
+    seq_len = 200
+    pred_len = 20
+
+
+    history = y[:-pred_len]
+    real = y[-pred_len:]
+
+
 
     # extra_parameters
     extra_parameters = {
-        "seq_len": 200,
-        "pred_len": 100,
+        "seq_len": seq_len,
+        "pred_len": pred_len,
         "freq": "1min",
     }
     # 分别测试不同的模型
@@ -147,7 +153,7 @@ def Test():
 
         model.train(history=history, extra_parameters=extra_parameters)
 
-        predict = model.predict(history=history, predict_window=100, extra_parameters=extra_parameters)
+        predict = model.predict(history=history, predict_window=pred_len, extra_parameters=extra_parameters)
 
         print(f"predict: {predict}")
         print(f"real: {real}")
