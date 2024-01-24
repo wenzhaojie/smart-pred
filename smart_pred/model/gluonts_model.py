@@ -110,6 +110,13 @@ def Test():
         predict = model.predict(history=y, predict_window=10, extra_parameters=extra_parameters)
         print(f"predict: {predict}")
 
+        real = y[-10:]
+        print(f"real: {real}")
+
+        mae = np.mean(np.abs(predict - real))
+
+        print(f"mae: {mae}")
+
         print(f"测试 {model_name} 模型结束")
 
 
