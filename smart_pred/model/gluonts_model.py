@@ -146,10 +146,10 @@ def Test():
         "SimpleFeedForward",
         # "DeepAR",
         # "NBEATS",
-        "WaveNet",
-        "DLinear",
-        "PatchTST",
-
+        # "WaveNet",
+        # "DLinear",
+        # "PatchTST",
+        "LagTST",
     ]
 
     i = 0
