@@ -46,7 +46,9 @@ class GluonTS_model(Basic_model):
             )
         elif self.name == "DeepAR":
             self.model = DeepAREstimator(
-                # 添加 DeepAR 模型的参数
+                prediction_length=self.model_parameters["pred_len"],
+                context_length=self.model_parameters["seq_len"],
+                trainer=trainer
             )
         # ... 添加其他模型的条件
 
@@ -101,6 +103,7 @@ def Test():
     # 分别测试不同的模型
     model_names = [
         "SimpleFeedForward",
+        "DeepAR",
     ]
     for model_name in model_names:
         print(f"测试 {model_name} 模型")
