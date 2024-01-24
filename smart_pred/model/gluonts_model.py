@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 from gluonts.dataset.common import ListDataset
-from gluonts.mx import SimpleFeedForwardEstimator, DeepStateEstimator, NBEATSEstimator, LSTNetEstimator, \
-    WaveNetEstimator
-from gluonts.torch import DeepAREstimator  # 可以添加更多的模型
+from gluonts.mx import SimpleFeedForwardEstimator, NBEATSEstimator, WaveNetEstimator
+
+from gluonts.torch import DeepAREstimator, DLinearEstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
 from smart_pred.model.base import Basic_model
@@ -45,7 +45,7 @@ class GluonTS_model(Basic_model):
                 trainer=trainer
             )
         elif self.name == "DeepAR":
-            self.model = DeepStateEstimator(
+            self.model = DeepAREstimator(
                 freq=self.model_parameters["freq"],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
@@ -59,24 +59,18 @@ class GluonTS_model(Basic_model):
                 context_length=self.model_parameters["seq_len"],
                 trainer=trainer
             )
-        elif self.name == "LSTNet":
-            trainer = GluonTrainer(epochs=5, )
-            self.model = LSTNetEstimator(
-                prediction_length=self.model_parameters["pred_len"],
-                context_length=self.model_parameters["seq_len"],
-                trainer=trainer,
-                ar_window=24,
-                skip_size=24,
-                channels=144,
-                num_series=0,
-            )
-
         elif self.name == "WaveNet":
             trainer = GluonTrainer(epochs=5, )
             self.model = WaveNetEstimator(
                 prediction_length=self.model_parameters["pred_len"],
                 freq=self.model_parameters["freq"],
                 trainer=trainer,
+            )
+        elif self.name == "DLinear":
+            self.model = DLinearEstimator(
+                prediction_length=self.model_parameters["pred_len"],
+                context_length=self.model_parameters["seq_len"],
+                trainer_kwargs={"max_epochs": 5}
             )
 
         self.predictor = self.model.train(train_ds)
@@ -139,7 +133,8 @@ def Test():
         "SimpleFeedForward",
         # "DeepAR",
         # "NBEATS",
-        "WaveNet"
+        "WaveNet",
+        "DLinear",
     ]
 
     i = 0
