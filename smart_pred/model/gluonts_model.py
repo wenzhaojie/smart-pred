@@ -56,6 +56,7 @@ class GluonTS_model(Basic_model):
                 freq=self.model_parameters["freq"],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
+                use_feat_static_cat=False,
                 trainer=trainer
             )
 
@@ -100,6 +101,10 @@ def Test():
     # 用正弦函数生成数据，1000个点，周期为100
     x = np.linspace(0, 100, 1000)
     y = np.sin(x)
+
+    history = y[:-100]
+    real = y[-100:]
+
     # extra_parameters
     extra_parameters = {
         "seq_len": 200,
@@ -113,8 +118,7 @@ def Test():
         "DeepState",
     ]
 
-    history = y[:-100]
-    real = y[-100:]
+
 
     i = 0
     for model_name in model_names:
