@@ -7,6 +7,9 @@ from gluonts.mx.trainer import Trainer as GluonTrainer
 
 from smart_pred.model.base import Basic_model
 
+# CUDA_VISIBLE_DEVICES=0 python gluonts_model.py
+
+
 
 class GluonTS_model(Basic_model):
     def __init__(self, name="SimpleFeedForward", scaler=None, model_parameters=None):
