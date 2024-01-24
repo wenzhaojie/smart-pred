@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from gluonts.dataset.common import ListDataset
-from gluonts.mx import SimpleFeedForwardEstimator, DeepStateEstimator, NBEATSEstimator, LSTNetEstimator, WaveNetEstimator
+from gluonts.mx import SimpleFeedForwardEstimator, DeepStateEstimator, NBEATSEstimator, LSTNetEstimator, \
+    WaveNetEstimator
 from gluonts.torch import DeepAREstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
@@ -64,18 +65,21 @@ class GluonTS_model(Basic_model):
                 freq=self.model_parameters["freq"],
                 prediction_length=self.model_parameters["pred_len"],
                 context_length=self.model_parameters["seq_len"],
-                trainer=trainer
+                trainer=trainer,
+                ar_window=24,
+                skip_size=24,
+                channels=100,
+                num_series=1,
+                kernel_size=6,
             )
 
-
-
         self.predictor = self.model.train(train_ds)
-
 
     def predict(self, history, predict_window, extra_parameters=None):
         # 历史数据长度至少是seq_len + pred_len
         if len(history) < self.model_parameters["seq_len"] + self.model_parameters["pred_len"]:
-            raise ValueError(f"历史数据长度至少是 {self.model_parameters['seq_len'] + self.model_parameters['pred_len']}")
+            raise ValueError(
+                f"历史数据长度至少是 {self.model_parameters['seq_len'] + self.model_parameters['pred_len']}")
 
         # 确保predict_window与模型参数中的pred_len相同
         if predict_window != self.model_parameters["pred_len"]:
@@ -105,7 +109,6 @@ class GluonTS_model(Basic_model):
 
 
 def Test():
-
     # 用正弦函数生成数据，1000个点，周期为100
     x = np.linspace(0, 100, 1000)
     y = np.sin(x)
@@ -126,8 +129,6 @@ def Test():
         # "NBEATS",
         "LSTNet",
     ]
-
-
 
     i = 0
     for model_name in model_names:
