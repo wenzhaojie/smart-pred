@@ -142,14 +142,14 @@ def Test():
         # "Informer",
         # "PatchTST",
         # "Autoformer", # mps不能用
-        # "FEDformer",
-        # "TimesNet",
-        # "RNN",
-        # "GRU",
-        # "LSTM",
-        # "TCN",
-        # "DilatedRNN",
-        # "MLP",
+        # "FEDformer", # mps不能用
+        # "TimesNet", # mps不能用
+        "RNN",
+        "GRU",
+        "LSTM",
+        "TCN",
+        "DilatedRNN",
+        "MLP",
     ]  # 您可以在此处添加其他模型名称
 
     i = 0
