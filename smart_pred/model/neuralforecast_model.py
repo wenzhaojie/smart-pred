@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 import pandas as pd
 
 from neuralforecast.models import RNN, GRU, LSTM, TCN, DeepAR, DilatedRNN, MLP, NHITS, NBEATS, NBEATSx
-from neuralforecast.models import TFT, VanillaTransformer, Informer, Autoformer, PatchTST, FEDformer, StemGNN, HINT, TimesNet
+from neuralforecast.models import TFT, VanillaTransformer, Informer, Autoformer, PatchTST, FEDformer, TimesNet
 from neuralforecast import NeuralForecast
 
 import matplotlib.pyplot as plt
@@ -64,19 +64,19 @@ class NeuralForecast_model(Basic_model):
         elif self.name == "TimesNet":
             self.model = TimesNet(input_size=seq_len, h=pred_len, max_steps=100)
         elif self.name == "RNN":
-            self.model = RNN(input_size=seq_len, h=pred_len)
+            self.model = RNN(input_size=seq_len, h=pred_len, max_steps=100)
         elif self.name == "GRU":
-            self.model = GRU(input_size=seq_len, h=pred_len)
+            self.model = GRU(input_size=seq_len, h=pred_len, max_steps=100)
         elif self.name == "LSTM":
-            self.model = LSTM(input_size=seq_len, h=pred_len)
+            self.model = LSTM(input_size=seq_len, h=pred_len, max_steps=100)
         elif self.name == "TCN":
-            self.model = TCN(input_size=seq_len, h=pred_len)
+            self.model = TCN(input_size=seq_len, h=pred_len, max_steps=100)
         elif self.name == "DeepAR":
-            self.model = DeepAR(input_size=seq_len, h=pred_len)
+            self.model = DeepAR(input_size=seq_len, h=pred_len, max_steps=100)
         elif self.name == "DilatedRNN":
-            self.model = DilatedRNN(input_size=seq_len, h=pred_len)
+            self.model = DilatedRNN(input_size=seq_len, h=pred_len, max_steps=100)
         elif self.name == "MLP":
-            self.model = MLP(input_size=seq_len, h=pred_len)
+            self.model = MLP(input_size=seq_len, h=pred_len, max_steps=100)
         else:
             raise Exception("模型名称错误！")
         # 可以添加更多模型的条件分支
@@ -138,10 +138,18 @@ def Test():
         # "NBEATSx",
         # "TFT",
         # "VanillaTransformer",
+        # "DeepAR",
         # "Informer",
         # "PatchTST",
-        "FEDformer",
-        "TimesNet",
+        # "Autoformer", # mps不能用
+        # "FEDformer",
+        # "TimesNet",
+        # "RNN",
+        # "GRU",
+        # "LSTM",
+        # "TCN",
+        # "DilatedRNN",
+        # "MLP",
     ]  # 您可以在此处添加其他模型名称
 
     i = 0
