@@ -21,9 +21,7 @@ class Crane_dsp_model(Basic_model):
             "seq_len": 1440 * 3,
             "pred_len": 1440,
             "moving_window": 20,
-            "history_error_correct": False,
             "is_scaler": False,
-            "use_future": True,
             "is_round": False,
         }
         pass
@@ -187,7 +185,6 @@ if __name__ == "__main__":
     extra_parameters = {
         "seq_len": 15,
         "pred_len": 1,
-        "history_error_correct": False,
     }
     result = my_model.rolling_predict(history=history, predict_window=10, extra_parameters=extra_parameters)
     print(f"result:{result}")
