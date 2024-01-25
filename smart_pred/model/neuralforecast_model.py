@@ -139,7 +139,7 @@ def Test():
         # "TFT",
         # "VanillaTransformer",
         # "Informer",
-        "PatchTST",
+        # "PatchTST",
         "FEDformer",
         "TimesNet",
     ]  # 您可以在此处添加其他模型名称
