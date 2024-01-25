@@ -10,8 +10,8 @@ from smart_pred.model.base import Basic_model
 
 
 class PaddleTS_model(Basic_model):
-    def __init__(self, name="NHiTSModel", scaler=StandardScaler(), model_parameters=None):
-        super().__init__(name, scaler, model_parameters)
+    def __init__(self, name="NHiTSModel", scaler=StandardScaler()):
+        super().__init__(name, scaler)
         self.model = None
         self.name = name
         self.scaler = scaler
@@ -21,16 +21,9 @@ class PaddleTS_model(Basic_model):
             "is_scaler": False,
             "is_round": False,
         }
-        self.default_model_parameters = {
-            "in_chunk_len": 120,
-            "out_chunk_len": 10,
-        }
-        self.model_parameters = model_parameters
-
-
         print(f"初始化 {self.name}!")
 
-    def train(self, history, extra_parameters=None, model_parameters=None):
+    def train(self, history, extra_parameters=None):
         # 转换np数据格式
         history = np.array(history)
         # 先初始化 dataframe
@@ -51,59 +44,59 @@ class PaddleTS_model(Basic_model):
         # 初始化模型
         if extra_parameters is None:
             self.extra_parameters = self.default_extra_parameters
-        if model_parameters is None:
-            self.model_parameters = self.default_model_parameters
 
         seq_len = extra_parameters["seq_len"]
         pred_len = extra_parameters["pred_len"]
 
-        self.model_parameters["in_chunk_len"] = seq_len
-        self.model_parameters["out_chunk_len"] = pred_len
+        model_parameters = {
+            "in_chunk_len": seq_len,
+            "out_chunk_len": pred_len
+        }
 
         # 根据模型name 来指定模型对象
         if self.name == "RNNBlockRegressor":
             self.model = RNNBlockRegressor(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "LSTNetRegressor":
             self.model = LSTNetRegressor(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "MLPRegressor":
             self.model = MLPRegressor(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "NBEATSModel":
             self.model = NBEATSModel(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "TCNRegressor":
             self.model = TCNRegressor(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "NHiTSModel":
             self.model = NHiTSModel(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "TransformerModel":
             self.model = TransformerModel(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "InformerModel":
             self.model = InformerModel(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "DeepARModel":
             self.model = DeepARModel(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "TFTModel":
             self.model = TFTModel(
-                **self.model_parameters
+                **model_parameters
             )
         elif self.name == "SCINetModel":
             self.model = SCINetModel(
-                **self.model_parameters
+                **model_parameters
             )
         else:
             raise Exception("模型名称错误！")
@@ -130,7 +123,6 @@ class PaddleTS_model(Basic_model):
             history_df,  # Also can be path to the CSV file
             time_col='time_col',
             target_cols='value',
-            #known_cov_cols='known_cov',
             freq='1min'
         )
         predicted_dataset = self.model.predict(history_dataset, )

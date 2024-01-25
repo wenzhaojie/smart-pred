@@ -10,8 +10,8 @@ from smart_pred.model.base import Basic_model
 
 
 class GluonTS_model(Basic_model):
-    def __init__(self, name="SimpleFeedForward", scaler=None, model_parameters=None):
-        super().__init__(name, scaler, model_parameters)
+    def __init__(self, name="SimpleFeedForward", scaler=None):
+        super().__init__(name, scaler)
         self.model = None
         self.name = name
         self.scaler = scaler
@@ -20,7 +20,6 @@ class GluonTS_model(Basic_model):
             "seq_len": 100,
             "freq": "1min",
         }
-        self.model_parameters = model_parameters or self.default_model_parameters
 
         print(f"初始化 {self.name}!")
 
@@ -158,7 +157,7 @@ def Test():
         print(f"第 {i} 次测试")
 
         print(f"测试 {model_name} 模型")
-        model = GluonTS_model(name=model_name, model_parameters=extra_parameters)
+        model = GluonTS_model(name=model_name)
 
         print(f"模型 {model_name} 初始化完成")
 

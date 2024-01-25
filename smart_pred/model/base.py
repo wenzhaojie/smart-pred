@@ -18,9 +18,7 @@ class Basic_model:
             "seq_len": 1440 * 3,
             "pred_len": 1440,
             "moving_window": 20,
-            "history_error_correct": False,
             "is_scaler": False,
-            "use_future": True,
             "is_round": False,
             "period_length": 1440,
             "start_at_period": 0,
@@ -119,7 +117,6 @@ class Basic_model:
         - test: 测试数据。
         - extra_parameters: 附加参数。
         """
-        use_future = extra_parameters["use_future"]
         is_round = extra_parameters["is_round"]
         is_scaler = extra_parameters["is_scaler"]
 

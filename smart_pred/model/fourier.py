@@ -132,9 +132,7 @@ class Icebreaker_model(Basic_model):
         self.default_extra_parameters = {
             "seq_len": 240,
             "pred_len": 1,
-            "history_error_correct": False,
             "is_scaler": False,
-            "use_future": True,
             "is_round": True,
         }
         # print(f"self.scaler:{self.scaler}")
@@ -191,6 +189,6 @@ if __name__ == "__main__":
         "pred_len": 1,
         "history_error_correct": False,
     }
-    result = my_model.rolling_predict(history=history, predict_window=10, use_future=False, extra_parameters=extra_parameters)
+    result = my_model.rolling_predict(history=history, predict_window=10, extra_parameters=extra_parameters)
     print(f"result:{result}")
     print(f"len(result):{len(result)}")
