@@ -135,3 +135,7 @@ dmypy.json
 .pyre/
 /datasets/
 /analysis/avg_concurrency_in_sec_by_app/
+lightning_logs/
+/learn/neuralforecast/longhorizon/datasets/
+/learn/neuralforecast/data/
+/learn/neuralforecast/lightning_logs/
