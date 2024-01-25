@@ -138,18 +138,18 @@ def Test():
         # "NBEATSx",
         # "TFT",
         # "VanillaTransformer",
-        # "DeepAR",
+        "DeepAR", # mps效果不好
         # "Informer",
         # "PatchTST",
         # "Autoformer", # mps不能用
         # "FEDformer", # mps不能用
         # "TimesNet", # mps不能用
-        "RNN",
-        "GRU",
-        "LSTM",
-        "TCN",
-        "DilatedRNN",
-        "MLP",
+        # "RNN",
+        # "GRU",
+        # "LSTM",
+        # "TCN",
+        # "DilatedRNN",
+        # "MLP",
     ]  # 您可以在此处添加其他模型名称
 
     i = 0
