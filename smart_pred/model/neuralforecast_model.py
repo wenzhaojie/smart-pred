@@ -138,7 +138,7 @@ def Test():
         # "NBEATSx",
         # "TFT",
         # "VanillaTransformer",
-        # "DeepAR",
+        "DeepAR",
         # "Informer",
         # "PatchTST",
         # "Autoformer", # mps不能用
