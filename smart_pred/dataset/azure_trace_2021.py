@@ -10,6 +10,7 @@ import pandas as pd
 
 class AzureFunction2021:
     def __init__(self, dataset_root: str, original_file_name: str):
+        dataset_root = os.path.expanduser(dataset_root)
         self.dataset_root = dataset_root
         self.original_file_name = original_file_name
         self.original_df = None
@@ -297,7 +298,7 @@ def generate_processed_dataset(num_of_app=10, output_pickle_root="~/GitHubProjec
     for app_name in app_set_list:
         map_input_list.append((dataset_obj, app_name, output_pickle_root))
 
-    with multiprocessing.Pool(processes=12) as pool:
+    with multiprocessing.Pool(processes=8) as pool:
         map_output_list = pool.map(process_app, map_input_list)
 
     print(map_output_list)
