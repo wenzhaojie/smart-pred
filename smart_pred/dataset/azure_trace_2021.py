@@ -257,8 +257,9 @@ def process_app(args):
 
 
 def generate_processed_dataset(num_of_app=10, output_pickle_root="~/GitHubProjects/smart-pred/datasets/AzureFunctionsInvocationTraceForTwoWeeksJan2021/avg_concurrency_in_sec_by_app"):
+    #
+    output_pickle_root = os.path.expanduser(output_pickle_root)
     print(f"output_pickle_root: {output_pickle_root}")
-
     # 创建output_csv_root文件夹, 这个path的各级文件夹不一定存在
     if not os.path.exists(output_pickle_root):
         os.makedirs(output_pickle_root)
