@@ -179,7 +179,12 @@ def Test():
         plt.legend(["True values", "Predict values"], loc="upper left", fontsize="xx-large")
         # 保存图片
         mae = round(mae, 2)
-        plt.savefig(f"model_{model_name}_mae_{mae}_seq_len_{seq_len}_pred_len_{pred_len}.png")
+
+        # save name
+        save_name = f"model_{model_name}_mae_{mae}_seq_len_{seq_len}_pred_len_{pred_len}.png"
+        save_path = f"./tmp/{save_name}"
+        plt.savefig(save_path)
+
         plt.show()
         plt.clf()
 
