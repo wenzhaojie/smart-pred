@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 class AzureFunction2021:
-    def __init__(self, dataset_root: str, original_file_name: str, pickle_root: str = "~/GitHubProjects/smart-pred/datasets/AzureFunctionsInvocationTraceForTwoWeeksJan2021/avg_concurrency_in_sec_by_app"):
+    def __init__(self, dataset_root: str = "~/GitHubProjects/smart-pred/datasets/AzureFunctionsInvocationTraceForTwoWeeksJan2021", original_file_name: str = "AzureFunctionsInvocationTraceForTwoWeeksJan2021.txt", pickle_root: str = "~/GitHubProjects/smart-pred/datasets/AzureFunctionsInvocationTraceForTwoWeeksJan2021/avg_concurrency_in_sec_by_app"):
         dataset_root = os.path.expanduser(dataset_root)
         self.dataset_root = dataset_root
         self.original_file_name = original_file_name
@@ -46,6 +46,25 @@ class AzureFunction2021:
     def init(self):
         self.load_original_csv()
         self.process_csv()
+
+    def get_app_list(self):
+        return list(self.app_df_dict.keys())
+
+    def get_app_by_function(self, function_name: str):
+        for app_name, df in self.app_df_dict.items():
+            if function_name in df["func"].unique():
+                return app_name
+        return None
+
+    def get_function_list(self):
+        function_list = []
+        for app_name, df in self.app_df_dict.items():
+            function_list += list(df["func"].unique())
+        return list(set(function_list))
+
+    def get_function_list_by_app(self, app_name: str):
+        df = self.app_df_dict[app_name]
+        return list(df["func"].unique())
 
     def generate_invocation_time_series_by_sec(self, app_name: str, function_name: str):
         # 从app_df_dict中取出对应的df
@@ -380,7 +399,7 @@ if __name__ == "__main__":
     # test.test_cal_app_function_concurrency_at_timestamp()
     # test.test_cal_app_function_avg_concurrency_in_sec_with_ms()
 
-    # generate_processed_dataset(num_of_app=120)
+    generate_processed_dataset(num_of_app=120)
 
     test.test_get_app_function_avg_concurrency_in_sec_list()
 
