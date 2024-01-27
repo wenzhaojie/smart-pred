@@ -1,4 +1,4 @@
-from smart_pred.model.base import Basic_model
+from smart_pred.model.local.base import Basic_model
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
 
@@ -182,6 +182,10 @@ def Test():
 
         # save name
         save_name = f"model_{model_name}_mae_{mae}_seq_len_{seq_len}_pred_len_{pred_len}.png"
+        # 新建一个tmp
+        import os
+        if not os.path.exists("./tmp"):
+            os.mkdir("./tmp")
         save_path = f"./tmp/{save_name}"
         plt.savefig(save_path)
 

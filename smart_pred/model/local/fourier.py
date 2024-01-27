@@ -1,4 +1,4 @@
-from smart_pred.model.base import Basic_model
+from smart_pred.model.local.base import Basic_model
 from sklearn.preprocessing import MinMaxScaler
 
 import numpy as np

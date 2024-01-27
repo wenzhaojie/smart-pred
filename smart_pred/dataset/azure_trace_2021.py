@@ -9,13 +9,15 @@ import numpy as np
 import pandas as pd
 
 class AzureFunction2021:
-    def __init__(self, dataset_root: str, original_file_name: str):
+    def __init__(self, dataset_root: str, original_file_name: str, pickle_root: str = "~/GitHubProjects/smart-pred/datasets/AzureFunctionsInvocationTraceForTwoWeeksJan2021/avg_concurrency_in_sec_by_app"):
         dataset_root = os.path.expanduser(dataset_root)
         self.dataset_root = dataset_root
         self.original_file_name = original_file_name
         self.original_df = None
         self.processed_df = None
         self.app_df_dict = None
+        pickle_root = os.path.expanduser(pickle_root)
+        self.pickle_root = pickle_root
 
     def load_original_csv(self):
         csv_path = os.path.join(self.dataset_root, self.original_file_name)
@@ -40,6 +42,10 @@ class AzureFunction2021:
 
         # 将处理好的df存储到类中
         self.app_df_dict = app_df_dict
+
+    def init(self):
+        self.load_original_csv()
+        self.process_csv()
 
     def generate_invocation_time_series_by_sec(self, app_name: str, function_name: str):
         # 从app_df_dict中取出对应的df
@@ -132,15 +138,41 @@ class AzureFunction2021:
         # result_list转换为秒级的并发数，每秒为1000个毫秒中的最大并发数
         result_list = [max(result_list[i:i+1000]) for i in range(0, len(result_list), 1000)]
 
+        # 一共为14天的数据，每天有1440分钟，每分钟有60秒，所以一共有 14 * 1440 * 60 = 1209600 秒
+        # result_list的长度应该是 1209600，不足的用0补齐
+        result_list = result_list + [0 for _ in range(0, 1209600 - len(result_list))]
+
         # 计算并返回平均并发数
         return result_list
+
+    def get_app_function_avg_concurrency_in_sec_list(self, app_name: str, function_name: str) -> list:
+        # 保存的目录
+        pickle_root = self.pickle_root
+        # pickle文件名
+        pickle_filename = f"{app_name}.pickle"
+        # pickle文件路径
+        pickle_path = os.path.join(pickle_root, pickle_filename)
+
+        # 如果pickle文件存在，就直接读取
+        if os.path.exists(pickle_path):
+            print(f"pickle文件 {pickle_path} 存在，直接读取")
+            with open(pickle_path, "rb") as f:
+                result_dict = pickle.load(f)
+            return result_dict[function_name]
+        # 如果pickle文件不存在，就重新计算
+        else:
+            # cal_app_function_avg_concurrency_in_sec_with_ms
+            print(f"pickle文件 {pickle_path} 不存在，重新计算")
+            avg_concurrency_in_sec_with_ms_list = self.cal_app_function_avg_concurrency_in_sec_with_ms(app_name, function_name)
+            return avg_concurrency_in_sec_with_ms_list
+
 
 
 
 
 class TestAzureFunction2021:
     def __init__(self):
-        self.dataset_root = r"C:\Users\wenzh\PycharmProjects\smart-pred\datasets\AzureFunctionsInvocationTraceForTwoWeeksJan2021"
+        self.dataset_root = "~/GitHubProjects/smart-pred/datasets/AzureFunctionsInvocationTraceForTwoWeeksJan2021"
         self.original_file_name = "AzureFunctionsInvocationTraceForTwoWeeksJan2021.txt"
         self.azure_function_2021 = AzureFunction2021(self.dataset_root, self.original_file_name)
 
@@ -231,6 +263,39 @@ class TestAzureFunction2021:
         total_invocations = sum(avg_concurrency_list)
         print(f"{app_name} 中 {function_name} 一共调用了 {total_invocations} 次")
 
+    def test_get_app_function_avg_concurrency_in_sec_list(self):
+        print(f"开始测试 {self.azure_function_2021.original_file_name} 的 get_app_function_avg_concurrency_in_sec_list 函数")
+        self.azure_function_2021.load_original_csv()
+        self.azure_function_2021.process_csv()
+
+        # 第一个测试
+        app_name = "7b2c43a2bc30f6bb438074df88b603d2cb982d3e7961de05270735055950a568"
+        function_name = "e3cdb48830f66eb8689cc0223514569a69812b77e6611e3d59814fac0747bd2f"
+        start_t = time.time()
+        avg_concurrency_list = self.azure_function_2021.get_app_function_avg_concurrency_in_sec_list(app_name, function_name)
+        end_t = time.time()
+        print(f"耗时 {end_t - start_t} s")
+        total_invocations = sum(avg_concurrency_list)
+        print(f"{app_name} 中 {function_name} 一共调用了 {total_invocations} 次")
+        # 长度
+        print(f"长度为 {len(avg_concurrency_list)}")
+
+        # 下一个测试
+        app_name = "70b9cea7ca266637479483f517194c402dfe99b5fc2357e6ebac5e715c9a34a2"
+        function_name = "30aa434528bc68ee07745ee7be3a0bdb33d58961fdc8460ce5b5b46b4def96e8"
+        start_t = time.time()
+        avg_concurrency_list = self.azure_function_2021.get_app_function_avg_concurrency_in_sec_list(app_name, function_name)
+        end_t = time.time()
+        print(f"耗时 {end_t - start_t} s")
+        total_invocations = sum(avg_concurrency_list)
+        print(f"{app_name} 中 {function_name} 一共调用了 {total_invocations} 次")
+        # 长度
+        print(f"长度为 {len(avg_concurrency_list)}")
+
+
+
+
+
 
 def process_app(args):
     try:
@@ -315,7 +380,9 @@ if __name__ == "__main__":
     # test.test_cal_app_function_concurrency_at_timestamp()
     # test.test_cal_app_function_avg_concurrency_in_sec_with_ms()
 
-    generate_processed_dataset(num_of_app=120)
+    # generate_processed_dataset(num_of_app=120)
+
+    test.test_get_app_function_avg_concurrency_in_sec_list()
 
 
 

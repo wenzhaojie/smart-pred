@@ -6,7 +6,7 @@ from gluonts.mx import SimpleFeedForwardEstimator, NBEATSEstimator
 from gluonts.torch import DeepAREstimator, DLinearEstimator, WaveNetEstimator, PatchTSTEstimator, LagTSTEstimator  # 可以添加更多的模型
 from gluonts.mx.trainer import Trainer as GluonTrainer
 
-from smart_pred.model.base import Basic_model
+from smart_pred.model.local.base import Basic_model
 
 
 class GluonTS_model(Basic_model):

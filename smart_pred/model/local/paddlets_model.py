@@ -1,4 +1,4 @@
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 from paddlets import TSDataset
@@ -6,7 +6,7 @@ from paddlets.models.forecasting import RNNBlockRegressor, LSTNetRegressor, MLPR
 
 
 import time
-from smart_pred.model.base import Basic_model
+from smart_pred.model.local.base import Basic_model
 
 
 class PaddleTS_model(Basic_model):
