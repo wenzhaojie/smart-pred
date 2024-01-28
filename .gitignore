@@ -4,6 +4,9 @@
 # tmp
 tmp/
 
+# output
+output/
+
 # .idea
 .idea
 
