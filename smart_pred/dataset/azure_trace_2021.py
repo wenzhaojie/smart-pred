@@ -66,29 +66,6 @@ class AzureFunction2021:
         df = self.app_df_dict[app_name]
         return list(df["func"].unique())
 
-    def generate_invocation_time_series_by_sec(self, app_name: str, function_name: str):
-        # 从app_df_dict中取出对应的df
-        df = self.app_df_dict[app_name]
-
-        # 从df中取出对应的function的df
-        function_df = df[df["func"] == function_name]
-
-        # 生成时间序列
-        # start_index是向下取整，end_index是向上取整
-        start_index = int(function_df["start_timestamp"].min())
-        end_index = int(function_df["start_timestamp"].max()) + 1
-
-        # 初始化时间序列
-        invocation_time_series = [0 for _ in range(0, end_index - start_index + 1)]
-
-        # 遍历function_df，每一行都是一个函数调用，在其start_timestamp的位置上，invocation_time_series中对应的时间段加1
-        for index, row in function_df.iterrows():
-            start = int(row["start_timestamp"])
-            invocation_time_series[start - start_index] += 1
-
-        # 返回时间序列
-        return invocation_time_series
-
     # 定义函数以计算一个app中一个function的duration的分位数
     def cal_app_function_duration_percentile(self, app_name: str, function_name: str, percentile=99):
         # 从 app_df_dict 中取出对应的 df
@@ -101,6 +78,25 @@ class AzureFunction2021:
 
         # 计算并返回分位数
         return duration_in_percentile
+
+    def get_request_num_series(self, app_name: str, function_name: str):
+        # 从 app_df_dict 中取出对应的 df
+        df = self.app_df_dict[app_name]
+
+        # 筛选特定 function 的数据
+        specific_func_df = df[df['func'] == function_name]
+
+        # 开始时间和结束时间
+        end_timestamp = 3600 * 24 * 14 # 单位为秒
+        start_timestamp = 0
+
+        # 现在遍历每一个请求，将其对应的start_timestamp处的值加1
+        request_num_series = [0 for _ in range(start_timestamp, end_timestamp)]
+        for index, row in specific_func_df.iterrows():
+            start = math.floor(row["start_timestamp"])
+            request_num_series[start] += 1
+
+        return request_num_series
 
 
     # 定义函数以计算一个app中所有function的duration的分位数
@@ -141,7 +137,7 @@ class AzureFunction2021:
         specific_func_df = df[df['func'] == function_name]
 
         # 换算一共有多少毫秒
-        end_timestamp = math.ceil(df['end_timestamp'].max()) # 单位为秒
+        end_timestamp = 3600 * 24 * 14 # 单位为秒
         num_of_milliseconds = (end_timestamp) * 1000
 
         # result_list 用于存储每一毫秒的并发数
@@ -185,8 +181,60 @@ class AzureFunction2021:
             avg_concurrency_in_sec_with_ms_list = self.cal_app_function_avg_concurrency_in_sec_with_ms(app_name, function_name)
             return avg_concurrency_in_sec_with_ms_list
 
+    def get_inter_arrival_time_list(self, app_name: str, function_name: str):
+        # 从 app_df_dict 中取出对应的 df
+        df = self.app_df_dict[app_name]
 
+        # 筛选特定 function 的数据
+        specific_func_df = df[df['func'] == function_name]
 
+        # inter_arrival_time_series 表示相邻两次调用之间的时间间隔
+        inter_arrival_time_list = []
+        # 按照 start_timestamp 排序
+        specific_func_df = specific_func_df.sort_values(by="start_timestamp")
+        # 遍历df中的每一行，每一行都是一个函数调用，计算其与上一次调用之间的时间间隔
+        # 缓存上一次调用的时间戳
+        last_timestamp = None
+        for index, row in specific_func_df.iterrows():
+            current_timestamp = row["start_timestamp"]
+            if last_timestamp is not None:
+                inter_arrival_time = current_timestamp - last_timestamp
+                inter_arrival_time_list.append(inter_arrival_time)
+            last_timestamp = current_timestamp
+
+        return inter_arrival_time_list
+
+    def get_idle_time_list(self, app_name: str, function_name: str):
+        # 从 app_df_dict 中取出对应的 df
+        df = self.app_df_dict[app_name]
+
+        # 筛选特定 function 的数据
+        specific_func_df = df[df['func'] == function_name]
+
+        # 按照 start_timestamp 排序
+        specific_func_df = specific_func_df.sort_values(by="start_timestamp")
+
+        # 初始化空闲时间列表
+        idle_time_list = []
+
+        # 初始化上一次结束时间
+        last_end_timestamp = None
+
+        # 遍历 df 中的每一行
+        for _, row in specific_func_df.iterrows():
+            current_start_timestamp = row["start_timestamp"]
+            current_end_timestamp = row["end_timestamp"]
+
+            # 计算空闲时间
+            if last_end_timestamp and current_start_timestamp >= last_end_timestamp:
+                idle_time = current_start_timestamp - last_end_timestamp
+                idle_time_list.append(idle_time)
+
+            # 更新上一次的结束时间
+            if not last_end_timestamp or current_end_timestamp > last_end_timestamp:
+                last_end_timestamp = current_end_timestamp
+
+        return idle_time_list
 
 
 class TestAzureFunction2021:
@@ -208,23 +256,6 @@ class TestAzureFunction2021:
         print(self.azure_function_2021.app_df_dict.keys())
 
 
-    def test_generate_invocation_time_series_by_sec(self):
-        print(f"开始测试 {self.azure_function_2021.original_file_name} 的 generate_invocation_time_series_by_sec 函数")
-        self.azure_function_2021.load_original_csv()
-        self.azure_function_2021.process_csv()
-        app_name = "7b2c43a2bc30f6bb438074df88b603d2cb982d3e7961de05270735055950a568"
-        function_name = "e3cdb48830f66eb8689cc0223514569a69812b77e6611e3d59814fac0747bd2f"
-        self.azure_function_2021.generate_invocation_time_series_by_sec(app_name, function_name)
-        time_series = self.azure_function_2021.generate_invocation_time_series_by_sec(app_name, function_name)
-
-
-        # 一共调用了多少次
-        length = len(time_series)
-        num_of_invocations = sum(time_series)
-        print(f"一共调用了 {num_of_invocations} 次")
-        print(f"一共有 {length} 个时间段")
-
-
     def test_cal_app_function_duration_percentile(self):
         print(f"开始测试 {self.azure_function_2021.original_file_name} 的 cal_app_function_duration_percentile 函数")
         self.azure_function_2021.load_original_csv()
@@ -243,6 +274,16 @@ class TestAzureFunction2021:
         percentile = 99
         duration_in_percentile = self.azure_function_2021.cal_app_all_function_duration_percentile(app_name, percentile)
         print(f"{app_name} 中所有 function 的 duration 的 {percentile} 分位数是 {duration_in_percentile}")
+
+
+    def test_get_request_num_series(self):
+        print(f"开始测试 {self.azure_function_2021.original_file_name} 的 get_request_num_series 函数")
+        self.azure_function_2021.load_original_csv()
+        self.azure_function_2021.process_csv()
+        app_name = "7b2c43a2bc30f6bb438074df88b603d2cb982d3e7961de05270735055950a568"
+        function_name = "e3cdb48830f66eb8689cc0223514569a69812b77e6611e3d59814fac0747bd2f"
+        request_num_series = self.azure_function_2021.get_request_num_series(app_name, function_name)
+        print(f"{app_name} 中 {function_name} 的 request_num_series 的长度是 {len(request_num_series)}")
 
     def test_cal_app_function_concurrency_at_timestamp(self):
         print(f"开始测试 {self.azure_function_2021.original_file_name} 的 cal_app_function_concurrency_at_timestamp 函数")
@@ -310,6 +351,65 @@ class TestAzureFunction2021:
         print(f"{app_name} 中 {function_name} 一共调用了 {total_invocations} 次")
         # 长度
         print(f"长度为 {len(avg_concurrency_list)}")
+
+    def test_get_inter_arrival_time_list(self):
+        print(f"开始测试 {self.azure_function_2021.original_file_name} 的 get_inter_arrival_time_list 函数")
+        self.azure_function_2021.load_original_csv()
+        self.azure_function_2021.process_csv()
+
+        # 第一个测试
+        app_name = "7b2c43a2bc30f6bb438074df88b603d2cb982d3e7961de05270735055950a568"
+        function_name = "e3cdb48830f66eb8689cc0223514569a69812b77e6611e3d59814fac0747bd2f"
+        start_t = time.time()
+        inter_arrival_time_list = self.azure_function_2021.get_inter_arrival_time_list(app_name, function_name)
+        end_t = time.time()
+        print(f"耗时 {end_t - start_t} s")
+        print(f"inter_arrival_time_list 的长度为 {len(inter_arrival_time_list)}")
+        # 打印前20
+        print(inter_arrival_time_list[:20])
+
+        # 下一个测试
+        app_name = "70b9cea7ca266637479483f517194c402dfe99b5fc2357e6ebac5e715c9a34a2"
+        function_name = "30aa434528bc68ee07745ee7be3a0bdb33d58961fdc8460ce5b5b46b4def96e8"
+        start_t = time.time()
+        inter_arrival_time_list = self.azure_function_2021.get_inter_arrival_time_list(app_name, function_name)
+        end_t = time.time()
+        print(f"耗时 {end_t - start_t} s")
+        print(f"inter_arrival_time_list 的长度为 {len(inter_arrival_time_list)}")
+        # 打印前20
+        print(inter_arrival_time_list[:20])
+
+
+
+    def test_get_idle_time_list(self):
+        print(f"开始测试 {self.azure_function_2021.original_file_name} 的 get_idle_time_list 函数")
+        self.azure_function_2021.load_original_csv()
+        self.azure_function_2021.process_csv()
+
+        # 第一个测试
+        app_name = "7b2c43a2bc30f6bb438074df88b603d2cb982d3e7961de05270735055950a568"
+        function_name = "e3cdb48830f66eb8689cc0223514569a69812b77e6611e3d59814fac0747bd2f"
+        start_t = time.time()
+        idle_time_list = self.azure_function_2021.get_idle_time_list(app_name, function_name)
+        end_t = time.time()
+        print(f"耗时 {end_t - start_t} s")
+        print(f"idle_time_list 的长度为 {len(idle_time_list)}")
+        # 打印前20
+        print(idle_time_list[:20])
+
+
+        # 下一个测试
+        app_name = "70b9cea7ca266637479483f517194c402dfe99b5fc2357e6ebac5e715c9a34a2"
+        function_name = "30aa434528bc68ee07745ee7be3a0bdb33d58961fdc8460ce5b5b46b4def96e8"
+        start_t = time.time()
+        idle_time_list = self.azure_function_2021.get_idle_time_list(app_name, function_name)
+        end_t = time.time()
+        print(f"耗时 {end_t - start_t} s")
+        print(f"idle_time_list 的长度为 {len(idle_time_list)}")
+        # 打印前20
+        print(idle_time_list[:20])
+
+
 
 
 
@@ -393,15 +493,20 @@ if __name__ == "__main__":
     test = TestAzureFunction2021()
     # test.test_load_original_csv()
     # test.test_process_csv()
-    # test.test_generate_invocation_time_series_by_sec()
+
+    # test.test_get_request_num_series()
     # test.test_cal_app_function_duration_percentile()
     # test.test_cal_app_all_function_duration_percentile()
     # test.test_cal_app_function_concurrency_at_timestamp()
     # test.test_cal_app_function_avg_concurrency_in_sec_with_ms()
 
-    generate_processed_dataset(num_of_app=120)
+    # generate_processed_dataset(num_of_app=120)
 
-    test.test_get_app_function_avg_concurrency_in_sec_list()
+    # test.test_get_app_function_avg_concurrency_in_sec_list()
+
+    test.test_get_inter_arrival_time_list()
+
+    test.test_get_idle_time_list()
 
 
 
