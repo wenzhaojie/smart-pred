@@ -12,6 +12,15 @@ class HuaweiPrivateDataset:
     def load_and_cache_dataset(self, ):
         pass
 
+    def get_all_function_name(self, ):
+        # 获取所有函数名
+        # day_000.csv 中的列名一共有
+        csv_path = os.path.join(self.dataset_root, "cpu_limit_minute", "day_001.csv")
+        df = pd.read_csv(csv_path)
+        all_function_name = df.columns[2:]
+        return all_function_name
+
+
     def get_data_by_day(self, data_type: str, function_name: str, day: int, resolution: str):
         # 确保resolution为"minute"或"second"
         if resolution not in ["minute", "second"]:
@@ -173,6 +182,14 @@ class HuaweiPublicDataset:
 
     def load_and_cache_dataset(self, ):
         pass
+
+    def get_all_function_name(self, ):
+        # 获取所有函数名
+        # day_000.csv 中的列名一共有
+        csv_path = os.path.join(self.dataset_root, "requests_minute", "day_001.csv")
+        df = pd.read_csv(csv_path)
+        all_function_name = df.columns[2:]
+        return all_function_name
 
     def get_data_by_day(self, data_type: str, function_name: str, day: int, resolution: str):
         # 确保resolution为"minute"
