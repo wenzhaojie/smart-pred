@@ -20,7 +20,6 @@ class Crane_dsp_model(Basic_model):
         self.default_extra_parameters = {
             "seq_len": 1440 * 3,
             "pred_len": 1440,
-            "moving_window": 20,
             "is_scaler": False,
             "is_round": False,
         }
