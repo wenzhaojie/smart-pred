@@ -20,8 +20,16 @@ class HuaweiPrivateDataset:
         all_function_name = df.columns[2:]
         return all_function_name
 
+    def get_num_of_function(self, ):
+        # 获取函数数量
+        num_of_function = len(self.get_all_function_name())
+        return num_of_function
+
 
     def get_data_by_day(self, data_type: str, function_name: str, day: int, resolution: str):
+        # private 的 day 000 到 234，确保day在这个范围内
+        if day < 0 or day > 234:
+            raise ValueError("day must be in range 0 to 234")
         # 确保resolution为"minute"或"second"
         if resolution not in ["minute", "second"]:
             raise ValueError("Resolution must be 'minute' or 'second'.")
@@ -191,7 +199,16 @@ class HuaweiPublicDataset:
         all_function_name = df.columns[2:]
         return all_function_name
 
+    def get_num_of_function(self, ):
+        # 获取函数数量
+        num_of_function = len(self.get_all_function_name())
+        return num_of_function
+
     def get_data_by_day(self, data_type: str, function_name: str, day: int, resolution: str):
+        # public 的 day 00 到 25，确保day在这个范围内
+        if day < 0 or day > 25:
+            raise ValueError("Day must be in range 0 to 25")
+
         # 确保resolution为"minute"
         if resolution not in ["minute",]:
             raise ValueError("Resolution must be 'minute'")

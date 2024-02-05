@@ -22,6 +22,7 @@ class NeuralForecast_model(Basic_model):
         self.default_extra_parameters = {
             "seq_len": 1440 * 3,
             "pred_len": 1440,
+            "max_steps": 100,
             "is_scaler": False,
             "is_round": False,
         }
@@ -33,6 +34,7 @@ class NeuralForecast_model(Basic_model):
 
         seq_len = extra_parameters["seq_len"]
         pred_len = extra_parameters["pred_len"]
+        max_steps = extra_parameters["max_steps"]
 
         # 数据预处理
         if self.scaler and extra_parameters["is_scaler"]:
@@ -44,39 +46,39 @@ class NeuralForecast_model(Basic_model):
 
         # 获取模型
         if self.name == "NHITS":
-            self.model = NHITS(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = NHITS(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "NBEATS":
-            self.model = NBEATS(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = NBEATS(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "NBEATSx":
-            self.model = NBEATSx(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = NBEATSx(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "TFT":
-            self.model = TFT(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = TFT(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "VanillaTransformer":
-            self.model = VanillaTransformer(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = VanillaTransformer(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "Informer":
-            self.model = Informer(input_size=seq_len, h=pred_len, max_steps=500)
+            self.model = Informer(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "Autoformer":
-            self.model = Autoformer(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = Autoformer(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "PatchTST":
-            self.model = PatchTST(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = PatchTST(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "FEDformer":
-            self.model = FEDformer(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = FEDformer(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "TimesNet":
-            self.model = TimesNet(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = TimesNet(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "RNN":
-            self.model = RNN(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = RNN(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "GRU":
-            self.model = GRU(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = GRU(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "LSTM":
-            self.model = LSTM(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = LSTM(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "TCN":
-            self.model = TCN(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = TCN(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "DeepAR":
-            self.model = DeepAR(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = DeepAR(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "DilatedRNN":
-            self.model = DilatedRNN(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = DilatedRNN(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "MLP":
-            self.model = MLP(input_size=seq_len, h=pred_len, max_steps=100)
+            self.model = MLP(input_size=seq_len, h=pred_len, max_steps=max_steps)
         else:
             raise Exception("模型名称错误！")
         # 可以添加更多模型的条件分支
