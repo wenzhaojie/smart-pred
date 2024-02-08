@@ -18,7 +18,8 @@ class HuaweiPrivateDataset:
         csv_path = os.path.join(self.dataset_root, "cpu_limit_minute", "day_001.csv")
         df = pd.read_csv(csv_path)
         all_function_name = df.columns[2:]
-        return all_function_name
+        all_function_name_list = [str(x) for x in all_function_name]
+        return all_function_name_list
 
     def get_num_of_function(self, ):
         # 获取函数数量
@@ -194,10 +195,11 @@ class HuaweiPublicDataset:
     def get_all_function_name(self, ):
         # 获取所有函数名
         # day_000.csv 中的列名一共有
-        csv_path = os.path.join(self.dataset_root, "requests_minute", "day_001.csv")
+        csv_path = os.path.join(self.dataset_root, "requests_minute", "day_01.csv")
         df = pd.read_csv(csv_path)
         all_function_name = df.columns[2:]
-        return all_function_name
+        all_function_name_list = [str(x) for x in all_function_name]
+        return all_function_name_list
 
     def get_num_of_function(self, ):
         # 获取函数数量
