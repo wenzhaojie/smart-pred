@@ -172,3 +172,8 @@ class Basic_model:
         print(f"log:{log_dict}")
 
         return log_dict
+
+
+    def workload_step_prediction(self):
+        pass
+
