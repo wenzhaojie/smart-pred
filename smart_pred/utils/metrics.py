@@ -86,8 +86,14 @@ def utilization_ratio(y_pred, y_test):
     total_res = 0
     utilized_res = 0
     for pred, test in zip(y_pred, y_test):
-        total_res += max(pred, test)  # 计算总资源
-        utilized_res += min(pred, test)  # 计算利用资源
+        # 如果 pred > test，则说明预测值大于实际值，即资源存在浪费
+        if pred > test:
+            utilized_res += test
+            total_res += pred
+        else:
+            # 如果 pred <= test，则说明预测值小于等于实际值，即资源被充分利用
+            utilized_res += test
+            total_res += test
     _utilization_ratio = utilized_res / total_res  # 计算utilization_ratio
     return _utilization_ratio
 
