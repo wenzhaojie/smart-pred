@@ -145,3 +145,4 @@ lightning_logs/
 /learn/neuralforecast/longhorizon/datasets/
 /learn/neuralforecast/data/
 /learn/neuralforecast/lightning_logs/
+/analysis/motivation/plot_trace/
