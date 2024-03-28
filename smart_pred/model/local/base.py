@@ -174,21 +174,4 @@ class Basic_model:
         return log_dict
 
 
-    def workload_step_prediction(self, history, index_in_period, extra_parameters=None):
-        # 如果没有提供额外参数，则使用默认参数
-        if extra_parameters is None:
-            extra_parameters = self.default_extra_parameters
-        else:
-            # 如果提供了额外参数，则使用默认参数补充额外参数
-            for key, value in self.default_extra_parameters.items():
-                if key not in extra_parameters:
-                    extra_parameters[key] = value
-
-        seq_len = extra_parameters["seq_len"]
-        pred_len = extra_parameters["pred_len"]
-        period_length = extra_parameters["period_length"]
-
-        # 未完待续
-
-        pass
 
