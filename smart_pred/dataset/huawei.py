@@ -1,11 +1,11 @@
 import os
 import pandas as pd
 
-
 class HuaweiPrivateDataset:
     def __init__(self, dataset_root:str="~/GitHubProjects/smart-pred/datasets/huawei/private_dataset"):
         # 绝对路径
         dataset_root = os.path.expanduser(dataset_root)
+        print(f"dataset_root:{dataset_root}")
         self.dataset_root = dataset_root
         pass
 
