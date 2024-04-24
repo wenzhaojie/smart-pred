@@ -5,6 +5,15 @@
 from smart_pred.dataset.huawei import HuaweiPrivateDataset
 from smart_pred.dataset.huawei import HuaweiPublicDataset
 
+# 导入model
+from smart_pred.model.local.passive import Movingavg_model
+from smart_pred.model.local.passive import Movingmax_model
+from smart_pred.model.local.period import Maxvalue_model
+from smart_pred.model.local.period import Minvalue_model
+from smart_pred.model.local.period import Avgvalue_model
+
+
+
 from py_plotter.plot import Plotter
 
 # 从私有数据集中获取数据
@@ -47,15 +56,7 @@ def compare_prediction_metrics():
     history = trace[:3*24*60]
     future = trace[3*24*60:4*24*60]
 
-    # 模拟时间流失
-    curr_time = 0
-    prediction_1 = []
-    prediction_2 = []
 
-    # method 1: 用上一个值来预测下一个值
-
-    # method 2: 用前5个值的平均值来预测
-    prediction2 = [sum(history[-5:]) / 5] * len(future)
 
 
 

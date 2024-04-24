@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from smart_pred.utils.metrics import get_metric_dict
 
 class Basic_model:
-    def __init__(self, name="Basic_model", scaler=StandardScaler(), model_parameters=None):
+    def __init__(self, name="Basic_model", scaler=StandardScaler()):
         """
         模型初始化函数。
         参数:
@@ -23,12 +23,6 @@ class Basic_model:
             "period_length": 1440,
             "start_at_period": 0,
         }
-        self.default_model_parameters = {
-            "pred_len": 24,
-            "seq_len": 100,
-            "freq": "1min",
-        }
-        self.model_parameters = model_parameters
 
     def get_scaler(self):
         """
@@ -78,9 +72,6 @@ class Basic_model:
             for key, value in self.default_extra_parameters.items():
                 if key not in extra_parameters:
                     extra_parameters[key] = value
-        # model parameters
-        if self.model_parameters is None:
-            self.model_parameters = self.default_model_parameters
 
         seq_len = extra_parameters["seq_len"]
         pred_len = extra_parameters["pred_len"]
@@ -131,8 +122,6 @@ class Basic_model:
             for key, value in self.default_extra_parameters.items():
                 if key not in extra_parameters:
                     extra_parameters[key] = value
-        if self.model_parameters is None:
-            self.model_parameters = self.default_model_parameters
 
         # 是否四舍五入
         is_round = extra_parameters["is_round"]
@@ -208,8 +197,6 @@ class Basic_model:
             for key, value in self.default_extra_parameters.items():
                 if key not in extra_parameters:
                     extra_parameters[key] = value
-        if self.model_parameters is None:
-            self.model_parameters = self.default_model_parameters
 
         # 是否四舍五入
         is_round = extra_parameters["is_round"]
@@ -235,7 +222,7 @@ class Basic_model:
         start_t = time.time()
         predict = []
         # 每一次pred_len
-        pred_len = self.model_parameters["pred_len"]
+        pred_len = extra_parameters["pred_len"]
         for i in range(len(test)):
             partial_predict = self.predict(
                 history=np.concatenate((train, test[:i])),
