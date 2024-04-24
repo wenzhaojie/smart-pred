@@ -146,3 +146,6 @@ lightning_logs/
 /learn/neuralforecast/data/
 /learn/neuralforecast/lightning_logs/
 /analysis/motivation/plot_trace/
+
+# 所有 plot_trace 文件夹
+plot_trace/

@@ -23,6 +23,11 @@ class Basic_model:
             "period_length": 1440,
             "start_at_period": 0,
         }
+        self.default_model_parameters = {
+            "pred_len": 24,
+            "seq_len": 100,
+            "freq": "1min",
+        }
         self.model_parameters = model_parameters
 
     def get_scaler(self):
@@ -73,6 +78,9 @@ class Basic_model:
             for key, value in self.default_extra_parameters.items():
                 if key not in extra_parameters:
                     extra_parameters[key] = value
+        # model parameters
+        if self.model_parameters is None:
+            self.model_parameters = self.default_model_parameters
 
         seq_len = extra_parameters["seq_len"]
         pred_len = extra_parameters["pred_len"]
@@ -117,7 +125,18 @@ class Basic_model:
         - test: 测试数据。
         - extra_parameters: 附加参数。
         """
+        if extra_parameters is None:
+            extra_parameters = self.default_extra_parameters
+        else:
+            for key, value in self.default_extra_parameters.items():
+                if key not in extra_parameters:
+                    extra_parameters[key] = value
+        if self.model_parameters is None:
+            self.model_parameters = self.default_model_parameters
+
+        # 是否四舍五入
         is_round = extra_parameters["is_round"]
+        # 是否归一化
         is_scaler = extra_parameters["is_scaler"]
 
         # 先做归一化
@@ -172,6 +191,92 @@ class Basic_model:
         print(f"log:{log_dict}")
 
         return log_dict
+
+
+    def use_future_rolling_evaluation(self, train, test, extra_parameters=None):
+        """
+        模型评估函数。
+        参数:
+        - train: 训练数据。
+        - test: 测试数据。
+        - extra_parameters: 附加参数。
+        """
+
+        if extra_parameters is None:
+            extra_parameters = self.default_extra_parameters
+        else:
+            for key, value in self.default_extra_parameters.items():
+                if key not in extra_parameters:
+                    extra_parameters[key] = value
+        if self.model_parameters is None:
+            self.model_parameters = self.default_model_parameters
+
+        # 是否四舍五入
+        is_round = extra_parameters["is_round"]
+        # 是否归一化
+        is_scaler = extra_parameters["is_scaler"]
+
+        # 先做归一化
+        if is_scaler == True:
+            combined_trace = np.concatenate((np.array(train), np.array(test)))
+            processed_trace = self.scaler.fit_transform(combined_trace.reshape(-1, 1)).reshape(-1, )
+            train = processed_trace[:len(train)]
+            test = processed_trace[len(train):]
+        else:
+            train = np.array(train)
+            test = np.array(test)
+
+        # 再训练
+        start_t = time.time()
+        self.train(history=train, extra_parameters=extra_parameters)
+        train_t = time.time() - start_t
+
+        # 滚动预测，每一次使用真实的数据作为模型的输入
+        start_t = time.time()
+        predict = []
+        # 每一次pred_len
+        pred_len = self.model_parameters["pred_len"]
+        for i in range(len(test)):
+            partial_predict = self.predict(
+                history=np.concatenate((train, test[:i])),
+                predict_window=pred_len,
+                extra_parameters=extra_parameters
+            )
+            predict.extend(partial_predict)
+        # 转换成ndarray
+        predict = np.array(predict)
+        predict_t = time.time() - start_t
+
+        # 做还原归一化
+        if is_scaler == True:
+            predict = self.scaler.inverse_transform(predict.reshape(-1, 1)).reshape(-1, )
+            test = self.scaler.inverse_transform(test.reshape(-1, 1)).reshape(-1, )
+
+        # 如果四舍五入
+        if is_round:
+            round_predict = []
+            for num in predict:
+                round_predict.append(max(0, round(num)))
+            predict = round_predict
+
+        # 指标计算
+        metrics_dict = get_metric_dict(y_pred=predict, y_test=test)
+
+        # 收集日志
+        log_dict = {
+            "model": self.name,
+            "train_length": len(train),
+            "test_length": len(test),
+            "predict_t": predict_t,
+            "train_t": train_t
+        }
+        log_dict.update(extra_parameters)
+        log_dict.update(metrics_dict)
+        print(f"log:{log_dict}")
+
+        return log_dict
+
+
 
 
  
