@@ -56,6 +56,46 @@ def compare_prediction_metrics():
     history = trace[:3*24*60]
     future = trace[3*24*60:4*24*60]
 
+    extra_parameters = {
+        "seq_len": 1440 * 3,
+        "pred_len": 1440,
+        "moving_window": 5,
+        "is_scaler": False,
+        "is_round": False,
+        "period_length": 1440,
+    }
+    # 采用多个周期的平均值预测
+    Avgvalue_model_instance = Avgvalue_model()
+    log, predict = Avgvalue_model_instance.use_future_rolling_evaluation(
+        train=history,
+        test=future,
+        extra_parameters=extra_parameters
+    )
+    print(f"Avgvalue_model_instance result: {log}")
+
+    # 画图
+    x = list(range(len(predict)))
+    pred = predict
+    true = future
+    file_name = f"Avgvalue_model_instance_result.pdf"
+
+    title = f"MAE: {log['mae']:.2f}, MSE: {log['mse']:.2f}"
+
+    my_plotter.plot_lines(
+        x_list=[x, x],
+        line_data_list=[pred, true],
+        legend_label_list=["Predict", "True"],
+        legend_title=None,
+        title=title,
+        x_label="Time",
+        y_label="Requests",
+        save_root="./plot_trace",
+        filename=file_name,
+        x_tick_ndigits=0,
+        y_tick_ndigits=0,
+    )
+    print(f"已经绘制 {file_name}!")
+
 
 
 

@@ -122,6 +122,8 @@ def get_metric_dict(y_pred, y_test):
     _rmse = rmse(y_pred=y_pred, y_test=y_test)  # 计算RMSE
     _mse = mse(y_pred=y_pred, y_test=y_test)  # 计算MSE
     _r2 = r2(y_pred=y_pred, y_test=y_test)  # 计算R2
+    # MAE
+    _mae = mae(y_pred=y_pred, y_test=y_test)  # 计算MAE
     _cold_start_invocation_ratio = cold_start_invocation_ratio(y_pred=y_pred, y_test=y_test)  # 计算cold_start_ratio
     _utilization_ratio = utilization_ratio(y_pred=y_pred, y_test=y_test)  # 计算utilization_ratio
     _over_provisioned_ratio = over_provisioned_ratio(y_pred=y_pred, y_test=y_test)  # 计算over_provisioned_ratio
@@ -137,6 +139,7 @@ def get_metric_dict(y_pred, y_test):
         "rmse": _rmse,
         "mse": _mse,
         "r2": _r2,
+        "mae": _mae,
         "crane_error": _crane_error,
         "cold_start_invocation_ratio": _cold_start_invocation_ratio,
         "utilization_ratio": _utilization_ratio,

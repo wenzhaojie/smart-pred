@@ -223,13 +223,22 @@ class Basic_model:
         predict = []
         # 每一次pred_len
         pred_len = extra_parameters["pred_len"]
-        for i in range(len(test)):
+        while len(predict) < len(test):
+            # history有两部分组成
+            # 1. train的部分
+            # 2. test的部分
+            history = np.concatenate((train, test[:len(predict)]))
+            # 只取最后seq_len个数据
+            history = history[-extra_parameters["seq_len"]:]
             partial_predict = self.predict(
-                history=np.concatenate((train, test[:i])),
+                history=history,
                 predict_window=pred_len,
                 extra_parameters=extra_parameters
             )
             predict.extend(partial_predict)
+        # 如果预测的长度超过了test的长度，需要截断
+        predict = predict[:len(test)]
+
         # 转换成ndarray
         predict = np.array(predict)
         predict_t = time.time() - start_t
@@ -261,7 +270,7 @@ class Basic_model:
         log_dict.update(metrics_dict)
         print(f"log:{log_dict}")
 
-        return log_dict
+        return log_dict, predict
 
 
 
