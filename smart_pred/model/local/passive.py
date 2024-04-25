@@ -1,7 +1,7 @@
 # 导入必要的库和模块
 from smart_pred.model.local.base import Basic_model
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 
 # 忽略警告信息
 import warnings
@@ -15,7 +15,7 @@ Movingavg_model:
 
 
 class Movingavg_model(Basic_model):
-    def __init__(self, name="Movingavg_model", scaler=MinMaxScaler()):
+    def __init__(self, name="Movingavg_model", scaler=StandardScaler()):
         print(f"初始化 {name}!")
         super().__init__(name, scaler)
         self.name = name
@@ -47,7 +47,7 @@ Movingmax_model:
 
 
 class Movingmax_model(Basic_model):
-    def __init__(self, name="Movingmax_model", scaler=MinMaxScaler()):
+    def __init__(self, name="Movingmax_model", scaler=StandardScaler()):
         print(f"初始化 {name}!")
         super().__init__(name, scaler)
         self.name = name
@@ -79,7 +79,7 @@ Movingmin_model:
 
 
 class Movingmin_model(Basic_model):
-    def __init__(self, name="Movingmin_model", scaler=MinMaxScaler()):
+    def __init__(self, name="Movingmin_model", scaler=StandardScaler()):
         print(f"初始化 {name}!")
         super().__init__(name, scaler)
         self.name = name

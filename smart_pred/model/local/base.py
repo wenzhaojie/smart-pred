@@ -255,9 +255,6 @@ class Basic_model:
                 round_predict.append(max(0, round(num)))
             predict = round_predict
 
-        # 指标计算
-        metrics_dict = get_metric_dict(y_pred=predict, y_test=test)
-
         # 收集日志
         log_dict = {
             "model": self.name,
@@ -266,6 +263,9 @@ class Basic_model:
             "predict_t": predict_t,
             "train_t": train_t
         }
+        # 指标计算
+        metrics_dict = get_metric_dict(y_pred=predict, y_test=test)
+
         log_dict.update(extra_parameters)
         log_dict.update(metrics_dict)
         print(f"log:{log_dict}")
