@@ -5,6 +5,7 @@
 # 连续 HUAWEI public 234, 425
 # 连续 Crane request 2
 from smart_pred.dataset.crane_trace import CraneDataset
+from smart_pred.dataset.huawei import HuaweiPublicDataset, HuaweiPrivateDataset
 
 from py_plotter.plot import Plotter
 
@@ -38,7 +39,14 @@ def draw_continuous():
     # Crane request 2
     dataset = CraneDataset()
     y = dataset.get_data_by_day_range(0, 0, "requests", "2", "minute")
-    plot_type_trace(y, "crane")
+    # 需要截取前600个
+    y = y[:600]
+    plot_type_trace(y, "continuous")
+
+# 画稀疏的
+def draw_sparse():
+    # HUAWEI public 371
+    dataset = HuaweiPublicDataset()
 
 
 if __name__ == "__main__":
