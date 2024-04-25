@@ -6,7 +6,6 @@
 # 连续 Crane request 2
 from smart_pred.dataset.crane_trace import CraneDataset
 
-
 from py_plotter.plot import Plotter
 
 my_plotter = Plotter(
