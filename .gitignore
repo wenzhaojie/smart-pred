@@ -149,3 +149,6 @@ lightning_logs/
 
 # 所有 plot_trace 文件夹
 plot_trace/
+
+# 所有 datasets.zip 文件
+datasets.zip
