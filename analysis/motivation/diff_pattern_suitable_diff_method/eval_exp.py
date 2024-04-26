@@ -50,7 +50,7 @@ extra_parameter_dict = {
         "seq_len": 480,
         "pred_len": 240,
         "max_steps": 10,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
     },
     "Maxvalue": {
