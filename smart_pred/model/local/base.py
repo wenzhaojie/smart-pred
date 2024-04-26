@@ -123,21 +123,6 @@ class Basic_model:
                 if key not in extra_parameters:
                     extra_parameters[key] = value
 
-        # 是否四舍五入
-        is_round = extra_parameters["is_round"]
-        # 是否归一化
-        is_scaler = extra_parameters["is_scaler"]
-
-        # 先做归一化
-        if is_scaler == True:
-            combined_trace = np.concatenate((np.array(train), np.array(test)))
-            processed_trace = self.scaler.fit_transform(combined_trace.reshape(-1, 1)).reshape(-1, )
-            train = processed_trace[:len(train)]
-            test = processed_trace[len(train):]
-        else:
-            train = np.array(train)
-            test = np.array(test)
-
         # 再训练
         start_t = time.time()
         self.train(history=train, extra_parameters=extra_parameters)
@@ -151,18 +136,6 @@ class Basic_model:
             extra_parameters=extra_parameters
         )
         predict_t = time.time() - start_t  # 计算时间
-
-        # 做还原归一化
-        if is_scaler == True:
-            predict = self.scaler.inverse_transform(predict.reshape(-1, 1)).reshape(-1, )
-            test = self.scaler.inverse_transform(test.reshape(-1, 1)).reshape(-1, )
-
-        # 如果四舍五入
-        if is_round:
-            round_predict = []
-            for num in predict:
-                round_predict.append(max(0, round(num)))
-            predict = round_predict
 
         # 指标计算
         metrics_dict = get_metric_dict(y_pred=predict, y_test=test)
@@ -198,21 +171,6 @@ class Basic_model:
                 if key not in extra_parameters:
                     extra_parameters[key] = value
 
-        # 是否四舍五入
-        is_round = extra_parameters["is_round"]
-        # 是否归一化
-        is_scaler = extra_parameters["is_scaler"]
-
-        # 先做归一化
-        if is_scaler == True:
-            combined_trace = np.concatenate((np.array(train), np.array(test)))
-            processed_trace = self.scaler.fit_transform(combined_trace.reshape(-1, 1)).reshape(-1, )
-            train = processed_trace[:len(train)]
-            test = processed_trace[len(train):]
-        else:
-            train = np.array(train)
-            test = np.array(test)
-
         # 滚动预测，每一次使用真实的数据作为模型的输入
         start_t = time.time()
         predict = []
@@ -237,18 +195,6 @@ class Basic_model:
         # 转换成ndarray
         predict = np.array(predict)
         predict_t = time.time() - start_t
-
-        # 做还原归一化
-        if is_scaler == True:
-            predict = self.scaler.inverse_transform(predict.reshape(-1, 1)).reshape(-1, )
-            test = self.scaler.inverse_transform(test.reshape(-1, 1)).reshape(-1, )
-
-        # 如果四舍五入
-        if is_round:
-            round_predict = []
-            for num in predict:
-                round_predict.append(max(0, round(num)))
-            predict = round_predict
 
         # 收集日志
         log_dict = {
