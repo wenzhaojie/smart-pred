@@ -5,13 +5,16 @@
 # 连续 HUAWEI public 234, 425
 # 连续 Crane request 2
 # 周期 Crane request 9
+# 突发 HUAWEI private 10,14,54,55,56,57,68,69,71
+
+
 from smart_pred.dataset.crane_trace import CraneDataset
 from smart_pred.dataset.huawei import HuaweiPublicDataset, HuaweiPrivateDataset
 
 from py_plotter.plot import Plotter
 
 my_plotter = Plotter(
-    figsize=(12, 8),
+    figsize=(10, 8),
     fontsize=30,
 )
 
@@ -24,7 +27,7 @@ def plot_type_trace(y, type, y_tick_interval=None):
         line_data_list=[y],
         title=None,
         x_label="Timestamp (minute)",
-        y_label="# of Requests",
+        y_label="Requests",
         save_root="./results",
         x_grid=True,
         y_grid=True,
@@ -77,10 +80,25 @@ def draw_periodic():
 
     plot_type_trace(y, "periodic", y_tick_interval=None)
 
+# 画bursty的
+def draw_bursty():
+    # HUAWEI public 97
+    dataset = HuaweiPrivateDataset()
+    y = dataset.get_data_by_day_range(0, 0, "requests", "10", "minute")
+    # 用0替换NaN
+    for i in range(len(y)):
+        if y[i] != y[i]:
+            y[i] = 0
 
+    print(f"y:{y}")
+    # 截取前720个
+    y = y[:360]
+
+    plot_type_trace(y, "bursty", y_tick_interval=10)
 
 
 if __name__ == "__main__":
     draw_continuous()
     draw_sparse()
     draw_periodic()
+    draw_bursty()
