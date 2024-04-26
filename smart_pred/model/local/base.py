@@ -213,11 +213,6 @@ class Basic_model:
             train = np.array(train)
             test = np.array(test)
 
-        # 再训练
-        start_t = time.time()
-        self.train(history=train, extra_parameters=extra_parameters)
-        train_t = time.time() - start_t
-
         # 滚动预测，每一次使用真实的数据作为模型的输入
         start_t = time.time()
         predict = []
@@ -261,7 +256,6 @@ class Basic_model:
             "train_length": len(train),
             "test_length": len(test),
             "predict_t": predict_t,
-            "train_t": train_t
         }
         # 指标计算
         metrics_dict = get_metric_dict(y_pred=predict, y_test=test)

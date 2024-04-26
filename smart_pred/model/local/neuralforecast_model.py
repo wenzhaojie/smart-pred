@@ -131,6 +131,7 @@ def Test():
         "pred_len": pred_len,
         "is_scaler": True,
         "is_round": False,
+        "max_steps": 100
     }
 
     # 分别测试不同的模型

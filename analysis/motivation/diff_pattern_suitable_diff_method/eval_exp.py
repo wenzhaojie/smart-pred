@@ -47,7 +47,7 @@ extra_parameter_dict = {
         "is_round": False,
     },
     "TimesNet": {
-        "seq_len": 1440,
+        "seq_len": 480,
         "pred_len": 240,
         "max_steps": 100,
         "is_scaler": True,
@@ -184,6 +184,7 @@ def exp():
                 try:
                     # 训练模型
                     model.train(history=train, extra_parameters=extra_parameters)
+                    print(f"完成训练！")
                     # 预测
                     log_dict, predict = model.use_future_rolling_evaluation(train=train, test=test, extra_parameters=extra_parameters)
 
