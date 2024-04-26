@@ -88,10 +88,10 @@ model_dict = {
     "NBEATS": NeuralForecast_model(name="NBEATS"),
     "PatchTST": NeuralForecast_model(name="PatchTST"),
     "TimesNet": NeuralForecast_model(name="TimesNet"),
-    "Maxvalue": Maxvalue_model,
-    "Avgvalue": Avgvalue_model,
-    "Movingavg": Movingavg_model,
-    "Movingmax": Movingmax_model,
+    "Maxvalue": Maxvalue_model(),
+    "Avgvalue": Avgvalue_model(),
+    "Movingavg": Movingavg_model(),
+    "Movingmax": Movingmax_model(),
 }
 
 trace_dict = {
