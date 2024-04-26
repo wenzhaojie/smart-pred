@@ -49,7 +49,7 @@ extra_parameter_dict = {
     "TimesNet": {
         "seq_len": 480,
         "pred_len": 240,
-        "max_steps": 100,
+        "max_steps": 10,
         "is_scaler": True,
         "is_round": False,
     },

@@ -192,6 +192,8 @@ class Basic_model:
         # 如果预测的长度超过了test的长度，需要截断
         predict = predict[:len(test)]
 
+        print("predict:", predict)
+
         # 转换成ndarray
         predict = np.array(predict)
         predict_t = time.time() - start_t
