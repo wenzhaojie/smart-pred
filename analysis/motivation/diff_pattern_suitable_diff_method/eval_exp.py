@@ -155,7 +155,7 @@ def exp():
                 dataset = CraneDataset()
             else:
                 raise Exception(f"Unknown dataset name: {dataset_name}")
-            trace = dataset.get_data_by_day_range(0, 3, "requests", trace_name, "minute")
+            trace = dataset.get_data_by_day_range(0, 4, "requests", trace_name, "minute")
 
             # 转换成np.array
             trace = np.array(trace)
