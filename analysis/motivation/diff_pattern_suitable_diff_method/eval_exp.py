@@ -22,7 +22,7 @@ extra_parameter_dict = {
         "seq_len": 1440,
         "pred_len": 240,
         "max_steps": 100,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
     "NHITS": {
@@ -43,14 +43,14 @@ extra_parameter_dict = {
         "seq_len": 1440,
         "pred_len": 240,
         "max_steps": 100,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
     "TimesNet": {
         "seq_len": 480,
         "pred_len": 240,
         "max_steps": 10,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
     "Maxvalue": {
@@ -120,15 +120,15 @@ trace_dict = {
         ("huawei_public","97"),
     ],
     "bursty": [ # HUAWEI private 10,14,54,55,56,57,68,69,71
-        ("huawei_private", 10),
-        ("huawei_private", 14),
-        ("huawei_private", 54),
-        ("huawei_private", 55),
-        ("huawei_private", 56),
-        ("huawei_private", 57),
-        ("huawei_private", 68),
-        ("huawei_private", 69),
-        ("huawei_private", 71),
+        ("huawei_private", "10"),
+        ("huawei_private", "14"),
+        ("huawei_private", "54"),
+        ("huawei_private", "55"),
+        ("huawei_private", "56"),
+        ("huawei_private", "57"),
+        ("huawei_private", "68"),
+        ("huawei_private", "69"),
+        ("huawei_private", "71"),
     ]
 }
 

@@ -50,6 +50,7 @@ class HuaweiPrivateDataset:
         df = pd.read_csv(csv_file_path)
 
         # 从列中筛选出需要的列
+        function_name = str(function_name)
         df = df[[function_name, "day", "time"]]
 
         # 重命名列
@@ -230,6 +231,7 @@ class HuaweiPublicDataset:
         df = pd.read_csv(csv_file_path)
 
         # 从列中筛选出需要的列
+        function_name = str(function_name)
         df = df[[function_name, "day", "time"]]
 
         # 重命名列
