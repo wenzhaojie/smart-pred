@@ -193,6 +193,12 @@ def exp():
                     pred = predict
                     true = test
 
+                    # 生成一个
+                    # 当前时间 str
+                    import time
+                    time_str = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+                    save_root = f"./plot_trace/{time_str}"
+
                     my_plotter.plot_lines(
                         x_list=[x, x],
                         line_data_list=[pred, true],
@@ -202,7 +208,7 @@ def exp():
                         x_grid=True,
                         x_label="Time",
                         y_label="Requests",
-                        save_root="./plot_trace",
+                        save_root=save_root,
                         filename=file_name,
                         x_tick_ndigits=0,
                         y_tick_ndigits=0,
@@ -227,8 +233,9 @@ def exp():
                 # 保存csv
                 import pandas as pd
                 df = pd.DataFrame(result_dict_list)
-                df.to_csv("./result.csv", index=False)
-                print("./result.csv")
+                csv_filename = f"./{save_root}/result.csv"
+                df.to_csv(csv_filename, index=False)
+                print(f"已经保存 {csv_filename}!")
 
 
 
