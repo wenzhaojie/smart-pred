@@ -190,9 +190,9 @@ def exp():
 
                     file_name = f"{model_name}_{trace_name}_{pattern}.pdf"
                     # 绘制图像
-                    x = np.arange(len(train) + len(test))
-                    pred = np.concatenate([train, predict])
-                    true = np.concatenate([train, test])
+                    x = np.arange(len(test))
+                    pred = predict
+                    true = test
 
                     my_plotter.plot_lines(
                         x_list=[x, x],
