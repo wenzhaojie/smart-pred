@@ -188,8 +188,10 @@ def exp():
                     print(f"完成训练！")
                     # 预测
                     log_dict, predict = model.use_future_rolling_evaluation(train=train, test=test, extra_parameters=extra_parameters)
-
-                    file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}.pdf"
+                    # MAE
+                    mae = log_dict["mae"]
+                    # 生成文件名
+                    file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_mae_{mae}.pdf"
                     # 绘制图像
                     x = np.arange(len(test))
                     pred = predict

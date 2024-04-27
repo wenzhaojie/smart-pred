@@ -12,7 +12,7 @@ class Basic_model:
         - name: 模型的名字，默认为"Basic_model"。
         - scaler: 数据的标准化处理器，默认使用StandardScaler。
         """
-        self.scaler = scaler
+        self.scaler = scaler # 关于 scaler，只在train的时候执行fit_transform，predict和rolling predict的时候执行transform即可
         self.name = name
         self.default_extra_parameters = {
             "seq_len": 1440 * 3,
@@ -77,6 +77,10 @@ class Basic_model:
         pred_len = extra_parameters["pred_len"]
         period_length = extra_parameters["period_length"]
 
+        # is_scaler为True时，对数据进行标准化处理
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
+
         # 转换历史数据为列表格式
         history = list(history)
 
@@ -106,53 +110,12 @@ class Basic_model:
         # 最后收尾阶段
         # 有可能预测超出了我们所需要的范围，所以需要截断
         rolling_predict = predict[:predict_window]
-        return np.array(rolling_predict)
+        rolling_predict = np.array(rolling_predict)
+        # 如果需要标准化处理，则进行逆标准化处理
+        if extra_parameters["is_scaler"]:
+            rolling_predict = self.scaler.inverse_transform(rolling_predict.reshape(-1, 1)).reshape(-1)
 
-    def evaluate(self, train, test, extra_parameters=None):
-        """
-        模型评估函数。
-        参数:
-        - train: 训练数据。
-        - test: 测试数据。
-        - extra_parameters: 附加参数。
-        """
-        if extra_parameters is None:
-            extra_parameters = self.default_extra_parameters
-        else:
-            for key, value in self.default_extra_parameters.items():
-                if key not in extra_parameters:
-                    extra_parameters[key] = value
-
-        # 再训练
-        start_t = time.time()
-        self.train(history=train, extra_parameters=extra_parameters)
-        train_t = time.time() - start_t
-
-        # 滚动预测
-        start_t = time.time()
-        predict = self.rolling_predict(
-            history=train,
-            predict_window=len(test),
-            extra_parameters=extra_parameters
-        )
-        predict_t = time.time() - start_t  # 计算时间
-
-        # 指标计算
-        metrics_dict = get_metric_dict(y_pred=predict, y_test=test)
-
-        # 收集日志
-        log_dict = {
-            "model": self.name,
-            "train_length": len(train),
-            "test_length": len(test),
-            "predict_t": predict_t,
-            "train_t": train_t
-        }
-        log_dict.update(extra_parameters)
-        log_dict.update(metrics_dict)
-        print(f"log:{log_dict}")
-
-        return log_dict
+        return rolling_predict
 
 
     def use_future_rolling_evaluation(self, train, test, extra_parameters=None):
@@ -170,6 +133,11 @@ class Basic_model:
             for key, value in self.default_extra_parameters.items():
                 if key not in extra_parameters:
                     extra_parameters[key] = value
+
+        # 如果需要标准化处理，则进行标准化处理
+        if extra_parameters["is_scaler"]:
+            train = self.scaler.transform(train.reshape(-1, 1)).reshape(-1)
+            test = self.scaler.transform(test.reshape(-1, 1)).reshape(-1)
 
         # 滚动预测，每一次使用真实的数据作为模型的输入
         start_t = time.time()
@@ -198,6 +166,9 @@ class Basic_model:
         predict = np.array(predict)
         predict_t = time.time() - start_t
 
+        # 计算评估指标
+        metric_dict = get_metric_dict(test, predict)
+
         # 收集日志
         log_dict = {
             "model": self.name,
@@ -205,12 +176,13 @@ class Basic_model:
             "test_length": len(test),
             "predict_t": predict_t,
         }
-        # 指标计算
-        metrics_dict = get_metric_dict(y_pred=predict, y_test=test)
-
         log_dict.update(extra_parameters)
-        log_dict.update(metrics_dict)
+        log_dict.update(metric_dict)
         print(f"log:{log_dict}")
+
+        # 如果需要标准化处理，则进行逆标准化处理
+        if extra_parameters["is_scaler"]:
+            predict = self.scaler.inverse_transform(predict.reshape(-1, 1)).reshape(-1)
 
         return log_dict, predict
 

@@ -92,7 +92,8 @@ class NeuralForecast_model(Basic_model):
             extra_parameters = self.default_extra_parameters
 
         if self.scaler and extra_parameters["is_scaler"]:
-            history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
+            # 如果需要标准化处理，则进行标准化处理
+            history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
 
         # 准备预测数据
         Y_df = pd.DataFrame({'y': history, 'ds': pd.date_range(start='2000-01-01', periods=len(history), freq='H')})
@@ -107,7 +108,7 @@ class NeuralForecast_model(Basic_model):
         # 只保留预测窗口的结果
         predictions = predictions[-predict_window:]
 
-        # 返回scaler
+        # 如果需要标准化处理，则进行逆标准化处理
         if self.scaler and extra_parameters["is_scaler"]:
             predictions = self.scaler.inverse_transform(predictions.reshape(-1, 1)).reshape(-1)
 
