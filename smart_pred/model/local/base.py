@@ -44,6 +44,8 @@ class Basic_model:
         - history: 训练数据。
         - extra_parameters: 附加参数。
         """
+        # 转换np
+        history = np.array(history)
         # 如果标准化了
         if extra_parameters["is_scaler"]:
             history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
