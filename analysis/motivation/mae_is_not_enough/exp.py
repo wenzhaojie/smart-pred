@@ -69,6 +69,12 @@ def compare_prediction_metrics():
         "is_round": False,
         "period_length": 1440,
     }
+    # 先train
+    Avgvalue_model_instance.train(
+        history=history,
+        extra_parameters=extra_parameters
+    )
+    # 再predict
     log, predict = Avgvalue_model_instance.use_future_rolling_evaluation(
         train=history,
         test=future,
@@ -113,6 +119,12 @@ def compare_prediction_metrics():
         "is_round": False,
         "period_length": 1440,
     }
+    # 先train
+    Maxvalue_model_instance.train(
+        history=history,
+        extra_parameters=extra_parameters
+    )
+    # 再predict
 
     log, predict = Maxvalue_model_instance.use_future_rolling_evaluation(
         train=history,
@@ -160,6 +172,12 @@ def compare_prediction_metrics():
         "is_round": False,
         "period_length": 1440,
     }
+    # 先train
+    Maxvalue_model_instance.train(
+        history=history,
+        extra_parameters=extra_parameters
+    )
+    # 再predict
 
     log, predict = Maxvalue_model_instance.use_future_rolling_evaluation(
         train=history,
@@ -215,6 +233,12 @@ def compare_prediction_metrics():
         "is_round": False,
         "period_length": 1440,
     }
+    # 先train
+    Movingavg_model_instance.train(
+        history=history,
+        extra_parameters=extra_parameters
+    )
+    # 再predict
     log, predict = Movingavg_model_instance.use_future_rolling_evaluation(
         train=history,
         test=future,
@@ -259,6 +283,12 @@ def compare_prediction_metrics():
         "is_round": False,
         "period_length": 1440,
     }
+    # 先train
+    Movingavg_model_instance.train(
+        history=history,
+        extra_parameters=extra_parameters
+    )
+    # 再predict
     log, predict = Movingavg_model_instance.use_future_rolling_evaluation(
         train=history,
         test=future,
@@ -303,6 +333,12 @@ def compare_prediction_metrics():
         "is_round": False,
         "period_length": 1440,
     }
+    # 先train
+    Movingavg_model_instance.train(
+        history=history,
+        extra_parameters=extra_parameters
+    )
+    # 再predict
     log, predict = Movingavg_model_instance.use_future_rolling_evaluation(
         train=history,
         test=future,
@@ -347,6 +383,12 @@ def compare_prediction_metrics():
         "is_round": False,
         "period_length": 1440,
     }
+    # 先train
+    Movingavg_model_instance.train(
+        history=history,
+        extra_parameters=extra_parameters
+    )
+    # 再predict
     log, predict = Movingavg_model_instance.use_future_rolling_evaluation(
         train=history,
         test=future,
@@ -391,7 +433,12 @@ def compare_prediction_metrics():
         "is_round": False,
         "period_length": 1440,
     }
-
+    # 先train
+    Movingmax_model_instance.train(
+        history=history,
+        extra_parameters=extra_parameters
+    )
+    # 再predict
     log, predict = Movingmax_model_instance.use_future_rolling_evaluation(
         train=history,
         test=future,
