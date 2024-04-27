@@ -19,43 +19,43 @@ my_plotter = Plotter(
 
 extra_parameter_dict = {
     "MLP": {
-        "seq_len": 1440,
-        "pred_len": 240,
+        "seq_len": 1440*2,
+        "pred_len": 1440,
         "max_steps": 100,
         "is_scaler": True,
         "is_round": False,
     },
     "NHITS": {
-        "seq_len": 1440,
-        "pred_len": 240,
+        "seq_len": 1440*2,
+        "pred_len": 1440,
         "max_steps": 100,
         "is_scaler": False,
         "is_round": False,
     },
     "NBEATS": {
-        "seq_len": 1440,
-        "pred_len": 240,
+        "seq_len": 1440*2,
+        "pred_len": 1440,
         "max_steps": 100,
         "is_scaler": False,
         "is_round": False,
     },
     "PatchTST": {
-        "seq_len": 1440,
-        "pred_len": 240,
+        "seq_len": 1440*2,
+        "pred_len": 1440,
         "max_steps": 100,
         "is_scaler": True,
         "is_round": False,
     },
     "TimesNet": {
-        "seq_len": 480,
-        "pred_len": 240,
-        "max_steps": 10,
+        "seq_len": 1440*2,
+        "pred_len": 1440,
+        "max_steps": 100,
         "is_scaler": True,
         "is_round": False,
     },
     "Maxvalue": {
-        "seq_len": 1440 * 3,
-        "pred_len": 240,
+        "seq_len": 1440*2,
+        "pred_len": 1440,
         "is_scaler": False,
         "is_round": False,
     },
@@ -83,7 +83,6 @@ extra_parameter_dict = {
 
 model_dict = {
     "MLP": NeuralForecast_model(name="MLP"),
-    "GRU": NeuralForecast_model(name="GRU"),
     "NHITS": NeuralForecast_model(name="NHITS"),
     "NBEATS": NeuralForecast_model(name="NBEATS"),
     "PatchTST": NeuralForecast_model(name="PatchTST"),
@@ -135,8 +134,8 @@ trace_dict = {
 
 def exp():
     # 所有的model
-    # model_name_list = ["MLP", "NHITS", "NBEATS", "PatchTST", "TimesNet", "Maxvalue", "Avgvalue", "Movingavg", "Movingmax"]
-    model_name_list = ["TimesNet", "Maxvalue", "Movingavg",]
+    model_name_list = ["MLP", "NHITS", "NBEATS", "PatchTST", "TimesNet", "Maxvalue", "Avgvalue", "Movingavg", "Movingmax"]
+    # model_name_list = ["TimesNet", "Maxvalue", "Movingavg",]
     # 所有的pattern
     pattern_list = ["period", "continuous", "sparse", "bursty"]
     # 存储结果
