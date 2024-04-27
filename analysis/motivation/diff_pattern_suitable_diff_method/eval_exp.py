@@ -40,7 +40,7 @@ extra_parameter_dict = {
         "is_round": False,
     },
     "PatchTST": {
-        "seq_len": 1440*2,
+        "seq_len": 1440, # 1440*2 OOM
         "pred_len": 1440,
         "max_steps": 100,
         "is_scaler": True,
