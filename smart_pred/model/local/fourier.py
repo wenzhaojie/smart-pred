@@ -26,6 +26,10 @@ class Crane_dsp_model(Basic_model):
         pass
 
     def predict(self, history, predict_window, extra_parameters=None):
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
+
         # 首先尝试从额外参数中获取一些特定的参数值，如果没有提供，则设置为None
         try:
             minNumOfSpectrumItems = extra_parameters["minNumOfSpectrumItems"]
@@ -116,6 +120,11 @@ class Crane_dsp_model(Basic_model):
                 a = defaultFFTMinValue  # 对小于等于0的值应用默认最小值
             output_list.append(a * (1.0 + marginFraction))
 
+        # 如果标准化
+        output_list = np.array(output_list)
+        if extra_parameters["is_scaler"]:
+            output_list = self.scaler.inverse_transform(np.array(output_list).reshape(-1, 1)).reshape(-1)
+
         return output_list
 
 
@@ -136,6 +145,10 @@ class Icebreaker_model(Basic_model):
         pass
 
     def predict(self, history, predict_window, extra_parameters=None):
+
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
 
         # 方法独有的参数
         try:
@@ -172,6 +185,12 @@ class Icebreaker_model(Basic_model):
         res = restored_sig + p[0] * t
 
         predict = res[-predict_window:]
+
+        predict = np.array(predict)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            predict = self.scaler.inverse_transform(predict.reshape(-1, 1)).reshape(-1)
+
         return list(predict)
 
 

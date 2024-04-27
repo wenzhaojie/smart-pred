@@ -26,13 +26,28 @@ class Maxvalue_model(Basic_model):
 
     def predict(self, history, predict_window, extra_parameters=None):
         history = np.array(history)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            history = np.round(history)
+
         num_of_history_day = int(len(history) / 1440)
         history_for_predict = history[-num_of_history_day*1440:]
         predict_list = []
         for index in range(predict_window):
             max_value = max([history_for_predict[i*1440+index] for i in range(num_of_history_day)])
             predict_list.append(max_value)
-        return np.array(predict_list)
+
+        predict_list = np.array(predict_list)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            predict_list = self.scaler.inverse_transform(predict_list.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            predict_list = np.round(predict_list)
+        return predict_list
 
 '''
 Minvalue_model:
@@ -53,13 +68,28 @@ class Minvalue_model(Basic_model):
 
     def predict(self, history, predict_window, extra_parameters=None):
         history = np.array(history)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            history = np.round(history)
+
         num_of_history_day = int(len(history) / 1440)
         history_for_predict = history[-num_of_history_day*1440:]
         predict_list = []
         for index in range(predict_window):
             min_value = min([history_for_predict[i*1440+index] for i in range(num_of_history_day)])
             predict_list.append(min_value)
-        return np.array(predict_list)
+
+        predict_list = np.array(predict_list)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            predict_list = self.scaler.inverse_transform(predict_list.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            predict_list = np.round(predict_list)
+        return predict_list
 
 '''
 Avgvalue_model:
@@ -80,13 +110,28 @@ class Avgvalue_model(Basic_model):
 
     def predict(self, history, predict_window, extra_parameters=None):
         history = np.array(history)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            history = np.round(history)
+
         num_of_history_day = int(len(history) / 1440)
         history_for_predict = history[-num_of_history_day*1440:]
         predict_list = []
         for index in range(predict_window):
             avg_value = np.mean([history_for_predict[i*1440+index] for i in range(num_of_history_day)])
             predict_list.append(avg_value)
-        return np.array(predict_list)
+
+        predict_list = np.array(predict_list)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            predict_list = self.scaler.inverse_transform(predict_list.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            predict_list = np.round(predict_list)
+        return predict_list
 
 
 if __name__ == "__main__":

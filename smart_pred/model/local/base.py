@@ -44,6 +44,13 @@ class Basic_model:
         - history: 训练数据。
         - extra_parameters: 附加参数。
         """
+        # 如果标准化了
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            history = np.round(history)
+
         pass
 
     def predict(self, history, predict_window, extra_parameters=None):
@@ -80,6 +87,9 @@ class Basic_model:
         # is_scaler为True时，对数据进行标准化处理
         if extra_parameters["is_scaler"]:
             history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            history = np.round(history)
 
         # 转换历史数据为列表格式
         history = list(history)
@@ -114,6 +124,9 @@ class Basic_model:
         # 如果需要标准化处理，则进行逆标准化处理
         if extra_parameters["is_scaler"]:
             rolling_predict = self.scaler.inverse_transform(rolling_predict.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            rolling_predict = np.round(rolling_predict)
 
         return rolling_predict
 
@@ -138,6 +151,10 @@ class Basic_model:
         if extra_parameters["is_scaler"]:
             train = self.scaler.transform(train.reshape(-1, 1)).reshape(-1)
             test = self.scaler.transform(test.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            train = np.round(train)
+            test = np.round(test)
 
         # 滚动预测，每一次使用真实的数据作为模型的输入
         start_t = time.time()
@@ -183,6 +200,9 @@ class Basic_model:
         # 如果需要标准化处理，则进行逆标准化处理
         if extra_parameters["is_scaler"]:
             predict = self.scaler.inverse_transform(predict.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            predict = np.round(predict)
 
         return log_dict, predict
 

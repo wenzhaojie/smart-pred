@@ -24,13 +24,17 @@ class GluonTS_model(Basic_model):
         print(f"初始化 {self.name}!")
 
     def train(self, history, extra_parameters=None):
+        # 如果标准化
+        if self.scaler and extra_parameters["is_scaler"]:
+            history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
+
         history = np.array(history)
-        start = pd.Period("2022-01-01 00:00", freq=self.model_parameters["freq"])
+        start = pd.Period("2022-01-01 00:00", freq=extra_parameters["freq"])
 
         # 创建 GluonTS dataset
         train_ds = ListDataset(
-            [{"target": history[:-self.model_parameters["pred_len"]], "start": start}],
-            freq=self.model_parameters["freq"]
+            [{"target": history[:-extra_parameters["pred_len"]], "start": start}],
+            freq=extra_parameters["freq"]
         )
 
         # 选择模型并训练
@@ -39,49 +43,49 @@ class GluonTS_model(Basic_model):
             trainer = GluonTrainer(epochs=5, )
             self.model = SimpleFeedForwardEstimator(
                 num_hidden_dimensions=[10],
-                prediction_length=self.model_parameters["pred_len"],
-                context_length=self.model_parameters["seq_len"],
+                prediction_length=extra_parameters["pred_len"],
+                context_length=extra_parameters["seq_len"],
                 trainer=trainer
             )
         elif self.name == "DeepAR":
             self.model = DeepAREstimator(
-                freq=self.model_parameters["freq"],
-                prediction_length=self.model_parameters["pred_len"],
-                context_length=self.model_parameters["seq_len"],
+                freq=extra_parameters["freq"],
+                prediction_length=extra_parameters["pred_len"],
+                context_length=extra_parameters["seq_len"],
                 trainer_kwargs={"max_epochs": 5}
             )
         elif self.name == "NBEATS":
             trainer = GluonTrainer(epochs=5, )
             self.model = NBEATSEstimator(
-                freq=self.model_parameters["freq"],
-                prediction_length=self.model_parameters["pred_len"],
-                context_length=self.model_parameters["seq_len"],
+                freq=extra_parameters["freq"],
+                prediction_length=extra_parameters["pred_len"],
+                context_length=extra_parameters["seq_len"],
                 trainer=trainer
             )
         elif self.name == "WaveNet":
             self.model = WaveNetEstimator(
-                prediction_length=self.model_parameters["pred_len"],
-                freq=self.model_parameters["freq"],
+                prediction_length=extra_parameters["pred_len"],
+                freq=extra_parameters["freq"],
             )
         elif self.name == "DLinear":
             self.model = DLinearEstimator(
-                prediction_length=self.model_parameters["pred_len"],
-                context_length=self.model_parameters["seq_len"],
+                prediction_length=extra_parameters["pred_len"],
+                context_length=extra_parameters["seq_len"],
                 trainer_kwargs={"max_epochs": 5}
             )
 
         elif self.name == "PatchTST":
             self.model = PatchTSTEstimator(
-                prediction_length=self.model_parameters["pred_len"],
-                context_length=self.model_parameters["seq_len"],
+                prediction_length=extra_parameters["pred_len"],
+                context_length=extra_parameters["seq_len"],
                 patch_len=10,
                 trainer_kwargs={"max_epochs": 5}
             )
         elif self.name == "LagTST":
             self.model = LagTSTEstimator(
-                prediction_length=self.model_parameters["pred_len"],
-                context_length=self.model_parameters["seq_len"],
-                freq=self.model_parameters["freq"],
+                prediction_length=extra_parameters["pred_len"],
+                context_length=extra_parameters["seq_len"],
+                freq=extra_parameters["freq"],
                 trainer_kwargs={"max_epochs": 5}
             )
 
@@ -89,23 +93,23 @@ class GluonTS_model(Basic_model):
 
     def predict(self, history, predict_window, extra_parameters=None):
         # 历史数据长度至少是seq_len + pred_len
-        if len(history) < self.model_parameters["seq_len"] + self.model_parameters["pred_len"]:
+        if len(history) < extra_parameters["seq_len"] + extra_parameters["pred_len"]:
             raise ValueError(
-                f"历史数据长度至少是 {self.model_parameters['seq_len'] + self.model_parameters['pred_len']}")
+                f"历史数据长度至少是 {extra_parameters['seq_len'] + extra_parameters['pred_len']}")
 
         # 确保predict_window与模型参数中的pred_len相同
-        if predict_window != self.model_parameters["pred_len"]:
-            raise ValueError(f"predict_window必须等于 {self.model_parameters['pred_len']}")
+        if predict_window != extra_parameters["pred_len"]:
+            raise ValueError(f"predict_window必须等于 {extra_parameters['pred_len']}")
 
         # 从history中获取最后seq_len个数据
         history = np.array(history)
-        history = history[-self.model_parameters["seq_len"]:]
+        history = history[-extra_parameters["seq_len"]:]
 
         # 创建测试数据集
-        start = pd.Period("2022-01-01 00:00", freq=self.model_parameters["freq"])
+        start = pd.Period("2022-01-01 00:00", freq=extra_parameters["freq"])
         test_ds = ListDataset(
             [{"target": history, "start": start}],
-            freq=self.model_parameters["freq"]
+            freq=extra_parameters["freq"]
         )
 
         # 使用模型进行预测
@@ -115,7 +119,7 @@ class GluonTS_model(Basic_model):
         forecast = next(iter(predictions))
         forecast_values = forecast.mean_ts
 
-        pred = forecast_values[-self.model_parameters["pred_len"]:].to_numpy()
+        pred = forecast_values[-extra_parameters["pred_len"]:].to_numpy()
 
         return pred
 

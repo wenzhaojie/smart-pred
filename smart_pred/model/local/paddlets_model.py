@@ -26,6 +26,10 @@ class PaddleTS_model(Basic_model):
     def train(self, history, extra_parameters=None):
         # 转换np数据格式
         history = np.array(history)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
+
         # 先初始化 dataframe
         out_chunk_len = extra_parameters["pred_len"]
         history_df = pd.DataFrame(
@@ -111,6 +115,10 @@ class PaddleTS_model(Basic_model):
     def predict(self, history, predict_window, extra_parameters=None):
         # 转换np数据格式
         history = np.array(history)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
+
         # 先初始化 dataframe
         out_chunk_len = extra_parameters["pred_len"]
         history_df = pd.DataFrame(
@@ -130,11 +138,20 @@ class PaddleTS_model(Basic_model):
         assert predict_window <= len(pred)
         pred = pred[0:predict_window]
 
+        # 转换
+        pred = np.array(pred)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            pred = self.scaler.inverse_transform(pred.reshape(-1, 1)).reshape(-1)
+
         return pred
 
     def recursive_predict(self, history, predict_window, extra_parameters=None):
         # 转换np数据格式
         history = np.array(history)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
         # 先初始化 dataframe
         out_chunk_len = extra_parameters["pred_len"]
         history_df = pd.DataFrame(
@@ -155,6 +172,10 @@ class PaddleTS_model(Basic_model):
         pred = rolling_predicted_dataset.to_numpy().reshape(-1, ).tolist()
         assert predict_window <= len(pred)
         pred = pred[0:predict_window]
+
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            pred = self.scaler.inverse_transform(pred.reshape(-1, 1)).reshape(-1)
 
         return pred
 

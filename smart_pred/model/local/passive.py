@@ -94,6 +94,13 @@ class Movingmin_model(Basic_model):
         }
 
     def predict(self, history, predict_window, extra_parameters=None):
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            history = np.round(history)
+
         moving_window = self.default_extra_parameters["moving_window"]
         if extra_parameters and "moving_window" in extra_parameters:
             moving_window = extra_parameters["moving_window"]
@@ -101,4 +108,12 @@ class Movingmin_model(Basic_model):
         slide = history[-moving_window:]
         predict = min(slide)
         predict_list = [predict for _ in range(predict_window)]
-        return np.array(predict_list)
+
+        predict_list = np.array(predict_list)
+        # 如果标准化
+        if extra_parameters["is_scaler"]:
+            predict_list = self.scaler.inverse_transform(predict_list.reshape(-1, 1)).reshape(-1)
+        # 如果is_round为True，则对数据进行四舍五入处理
+        if extra_parameters["is_round"]:
+            predict_list = np.round(predict_list)
+        return predict_list

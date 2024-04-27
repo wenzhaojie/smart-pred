@@ -65,7 +65,7 @@ def compare_prediction_metrics():
         "seq_len": 1440 * 3,
         "pred_len": 1440,
         "moving_window": 5,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
         "period_length": 1440,
     }
@@ -109,7 +109,7 @@ def compare_prediction_metrics():
         "seq_len": 1440 * 3,
         "pred_len": 1440,
         "moving_window": 5,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
         "period_length": 1440,
     }
@@ -156,7 +156,7 @@ def compare_prediction_metrics():
         "seq_len": 1440 * 3,
         "pred_len": 1440,
         "moving_window": 5,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
         "period_length": 1440,
     }
@@ -211,7 +211,7 @@ def compare_prediction_metrics():
         "seq_len": moving_window,
         "pred_len": 1,
         "moving_window": moving_window,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
         "period_length": 1440,
     }
@@ -255,7 +255,7 @@ def compare_prediction_metrics():
         "seq_len": moving_window,
         "pred_len": 1,
         "moving_window": moving_window,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
         "period_length": 1440,
     }
@@ -299,7 +299,7 @@ def compare_prediction_metrics():
         "seq_len": moving_window,
         "pred_len": 1,
         "moving_window": moving_window,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
         "period_length": 1440,
     }
@@ -343,7 +343,7 @@ def compare_prediction_metrics():
         "seq_len": moving_window,
         "pred_len": 1,
         "moving_window": moving_window,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
         "period_length": 1440,
     }
@@ -387,7 +387,7 @@ def compare_prediction_metrics():
         "seq_len": 5,
         "pred_len": 1,
         "moving_window": 5,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
         "period_length": 1440,
     }
