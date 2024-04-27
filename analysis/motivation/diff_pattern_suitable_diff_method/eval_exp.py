@@ -1,4 +1,6 @@
 # 这个实验用于说明一个观点，不存在一种特别牛的方法，对于所有类型的负载都有很好的效果
+import os
+
 from smart_pred.dataset.crane_trace import CraneDataset
 from smart_pred.dataset.huawei import HuaweiPublicDataset, HuaweiPrivateDataset
 
@@ -233,7 +235,8 @@ def exp():
                 # 保存csv
                 import pandas as pd
                 df = pd.DataFrame(result_dict_list)
-                csv_filename = f"./{save_root}/result.csv"
+
+                csv_filename = os.path.join(save_root, "result.csv")
                 df.to_csv(csv_filename, index=False)
                 print(f"已经保存 {csv_filename}!")
 
