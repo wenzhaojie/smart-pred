@@ -146,6 +146,9 @@ class Basic_model:
             for key, value in self.default_extra_parameters.items():
                 if key not in extra_parameters:
                     extra_parameters[key] = value
+        # 先转换np
+        train = np.array(train)
+        test = np.array(test)
 
         # 如果需要标准化处理，则进行标准化处理
         if extra_parameters["is_scaler"]:
