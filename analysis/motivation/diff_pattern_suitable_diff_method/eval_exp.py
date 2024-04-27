@@ -23,35 +23,35 @@ extra_parameter_dict = {
     "MLP": {
         "seq_len": 1440*2,
         "pred_len": 1440,
-        "max_steps": 1,
+        "max_steps": 100,
         "is_scaler": True,
         "is_round": False,
     },
     "NHITS": {
         "seq_len": 1440*2,
         "pred_len": 1440,
-        "max_steps": 1,
+        "max_steps": 100,
         "is_scaler": False,
         "is_round": False,
     },
     "NBEATS": {
         "seq_len": 1440*2,
         "pred_len": 1440,
-        "max_steps": 1,
+        "max_steps": 100,
         "is_scaler": False,
         "is_round": False,
     },
     "PatchTST": {
         "seq_len": 1440, # 1440*2 OOM
         "pred_len": 1440,
-        "max_steps": 1,
+        "max_steps": 100,
         "is_scaler": True,
         "is_round": False,
     },
     "TimesNet": {
         "seq_len": 1440*2,
         "pred_len": 1440,
-        "max_steps": 1,
+        "max_steps": 100,
         "is_scaler": True,
         "is_round": False,
     },
@@ -190,6 +190,8 @@ def exp():
                     log_dict, predict = model.use_future_rolling_evaluation(train=train, test=test, extra_parameters=extra_parameters)
                     # MAE
                     mae = log_dict["mae"]
+                    # 保留2位小数
+                    mae = "{:.2f}".format(mae)
                     # 生成文件名
                     file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_mae_{mae}.pdf"
                     # 绘制图像
