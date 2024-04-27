@@ -80,6 +80,14 @@ def compare_prediction_metrics():
         test=future,
         extra_parameters=extra_parameters
     )
+    # 重新计算 cold_start_ratio 等指标
+    re_cal_dict = get_metric_dict(
+        y_pred=predict,
+        y_test=future,
+    )
+    cold_start_invocation_ratio = re_cal_dict["cold_start_invocation_ratio"]
+    # 覆盖log中的
+    log["cold_start_invocation_ratio"] = cold_start_invocation_ratio
     print(f"Avgvalue_model_instance result: {log}")
 
     # 画图
@@ -131,7 +139,14 @@ def compare_prediction_metrics():
         test=future,
         extra_parameters=extra_parameters
     )
-
+    # 重新计算 cold_start_ratio 等指标
+    re_cal_dict = get_metric_dict(
+        y_pred=predict,
+        y_test=true,
+    )
+    cold_start_invocation_ratio = re_cal_dict["cold_start_invocation_ratio"]
+    # 覆盖log中的
+    log["cold_start_invocation_ratio"] = cold_start_invocation_ratio
     print(f"Maxvalue_model_instance result: {log}")
 
     # 画图
@@ -189,9 +204,28 @@ def compare_prediction_metrics():
     noise = np.random.randint(1300, 3000, len(predict))
     predict = predict + noise
 
+    predict = np.array(predict)
+    future = np.array(future)
+
     # 重新计算指标
-    log = get_metric_dict(predict, future)
+    if extra_parameters["is_scaler"]:
+        _predict = Maxvalue_model_instance.scaler.transform(predict.reshape(-1, 1)).reshape(-1)
+        _future = Maxvalue_model_instance.scaler.transform(future.reshape(-1, 1)).reshape(-1)
+        log = get_metric_dict(_predict, _future)
+    else:
+        log = get_metric_dict(predict, future)
+
+
+    # 重新计算 cold_start_ratio 等指标
+    re_cal_dict = get_metric_dict(
+        y_pred=predict,
+        y_test=true,
+    )
+    cold_start_invocation_ratio = re_cal_dict["cold_start_invocation_ratio"]
+    # 覆盖log中的
+    log["cold_start_invocation_ratio"] = cold_start_invocation_ratio
     print(f"Maxvalue_model_instance result: {log}")
+
 
     # 画图
     x = list(range(len(predict)))
@@ -244,6 +278,14 @@ def compare_prediction_metrics():
         test=future,
         extra_parameters=extra_parameters
     )
+    # 重新计算 cold_start_ratio 等指标
+    re_cal_dict = get_metric_dict(
+        y_pred=predict,
+        y_test=true,
+    )
+    cold_start_invocation_ratio = re_cal_dict["cold_start_invocation_ratio"]
+    # 覆盖log中的
+    log["cold_start_invocation_ratio"] = cold_start_invocation_ratio
     print(f"Movingavg_model_instance result: {log}")
 
     # 画图
@@ -294,6 +336,14 @@ def compare_prediction_metrics():
         test=future,
         extra_parameters=extra_parameters
     )
+    # 重新计算 cold_start_ratio 等指标
+    re_cal_dict = get_metric_dict(
+        y_pred=predict,
+        y_test=true,
+    )
+    cold_start_invocation_ratio = re_cal_dict["cold_start_invocation_ratio"]
+    # 覆盖log中的
+    log["cold_start_invocation_ratio"] = cold_start_invocation_ratio
     print(f"Movingavg_model_instance result: {log}")
 
     # 画图
@@ -344,6 +394,14 @@ def compare_prediction_metrics():
         test=future,
         extra_parameters=extra_parameters
     )
+    # 重新计算 cold_start_ratio 等指标
+    re_cal_dict = get_metric_dict(
+        y_pred=predict,
+        y_test=true,
+    )
+    cold_start_invocation_ratio = re_cal_dict["cold_start_invocation_ratio"]
+    # 覆盖log中的
+    log["cold_start_invocation_ratio"] = cold_start_invocation_ratio
     print(f"Movingavg_model_instance result: {log}")
 
     # 画图
@@ -394,6 +452,14 @@ def compare_prediction_metrics():
         test=future,
         extra_parameters=extra_parameters
     )
+    # 重新计算 cold_start_ratio 等指标
+    re_cal_dict = get_metric_dict(
+        y_pred=predict,
+        y_test=true,
+    )
+    cold_start_invocation_ratio = re_cal_dict["cold_start_invocation_ratio"]
+    # 覆盖log中的
+    log["cold_start_invocation_ratio"] = cold_start_invocation_ratio
     print(f"Movingavg_model_instance result: {log}")
 
     # 画图
@@ -444,6 +510,14 @@ def compare_prediction_metrics():
         test=future,
         extra_parameters=extra_parameters
     )
+    # 重新计算 cold_start_ratio 等指标
+    re_cal_dict = get_metric_dict(
+        y_pred=predict,
+        y_test=true,
+    )
+    cold_start_invocation_ratio = re_cal_dict["cold_start_invocation_ratio"]
+    # 覆盖log中的
+    log["cold_start_invocation_ratio"] = cold_start_invocation_ratio
     print(f"Movingmax_model_instance result: {log}")
 
     # 画图
