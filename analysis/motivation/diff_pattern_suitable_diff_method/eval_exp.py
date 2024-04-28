@@ -58,27 +58,27 @@ extra_parameter_dict = {
     "Maxvalue": {
         "seq_len": 1440 * 3,
         "pred_len": 1440,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
     "Avgvalue": {
         "seq_len": 1440 * 3,
         "pred_len": 1440,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
     "Movingavg": {
         "seq_len": 1440 * 3,
         "pred_len": 1,
         "moving_window": 10,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
     "Movingmax": {
         "seq_len": 1440 * 3,
         "pred_len": 1,
         "moving_window": 10,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
 }
