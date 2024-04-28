@@ -143,6 +143,12 @@ def exp():
     # 存储结果
     result_dict_list = []
 
+    # 生成一个
+    # 当前时间 str
+    import time
+    time_str = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+    save_root = f"./plot_trace/{time_str}"
+
     # 遍历所有的pattern
     for pattern in pattern_list:
         print(f"pattern: {pattern}")
@@ -198,12 +204,6 @@ def exp():
                     x = np.arange(len(test))
                     pred = predict
                     true = test
-
-                    # 生成一个
-                    # 当前时间 str
-                    import time
-                    time_str = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
-                    save_root = f"./plot_trace/{time_str}"
 
                     my_plotter.plot_lines(
                         x_list=[x, x],
