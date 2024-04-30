@@ -212,6 +212,7 @@ def exp():
                         legend_title=None,
                         title=None,
                         x_grid=True,
+                        y_grid=True,
                         x_label="Time",
                         y_label="Requests",
                         save_root=save_root,
