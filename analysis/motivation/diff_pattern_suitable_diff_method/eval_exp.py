@@ -1,4 +1,5 @@
 # 这个实验用于说明一个观点，不存在一种特别牛的方法，对于所有类型的负载都有很好的效果
+import json
 import os
 
 from smart_pred.dataset.crane_trace import CraneDataset
@@ -279,6 +280,50 @@ def exp(start_day=0, end_day=8):
                 csv_filename = os.path.join(save_root, "result.csv")
                 df.to_csv(csv_filename, index=False)
                 print(f"已经保存 {csv_filename}!")
+
+
+def draw_prediction(save_root="./plot_trace", json_file_name=None):
+    # json_file_name = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_extra_parameters.json")
+    with open(json_file_name, "r") as f:
+        extra_parameters = json.load(f)
+    print(f"extra_parameters: {extra_parameters}")
+    # load csv
+    import pandas as pd
+    # csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_plot_data.csv")
+
+    model_name = json_file_name.split("/")[-1].split("_")[0]
+    dataset_name = json_file_name.split("/")[-1].split("_")[1]
+    trace_name = json_file_name.split("/")[-1].split("_")[2]
+    pattern = json_file_name.split("/")[-1].split("_")[3]
+    seq_len = json_file_name.split("/")[-1].split("_")[5]
+    pred_len = json_file_name.split("/")[-1].split("_")[7]
+    mae = json_file_name.split("/")[-1].split("_")[9].split(".")[0]
+    csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_plot_data.csv")
+
+    df = pd.read_csv(csv_filename)
+    x = df["x"].values
+    pred = df["pred"].values
+    true = df["true"].values
+
+    x_list = [x, x]
+    file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_mae_{mae}.pdf"
+
+    my_plotter.plot_lines(
+        x_list=x_list,
+        line_data_list=[pred, true],
+        legend_label_list=["Predict", "True"],
+        legend_title=None,
+        title=None,
+        x_grid=True,
+        y_grid=True,
+        x_label="Time",
+        y_label="Requests",
+        save_root=save_root,
+        filename=file_name,
+        x_tick_ndigits=0,
+        y_tick_ndigits=0,
+    )
+    print(f"已经绘制 {file_name}!")
 
 
 
