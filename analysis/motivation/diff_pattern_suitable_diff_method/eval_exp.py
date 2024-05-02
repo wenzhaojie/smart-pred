@@ -291,13 +291,25 @@ def draw_prediction(save_root="./plot_trace", json_file_name=None):
     import pandas as pd
     # csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_plot_data.csv")
 
-    model_name = json_file_name.split("/")[-1].split("_")[0]
-    dataset_name = json_file_name.split("/")[-1].split("_")[1]
-    trace_name = json_file_name.split("/")[-1].split("_")[2]
-    pattern = json_file_name.split("/")[-1].split("_")[3]
-    seq_len = json_file_name.split("/")[-1].split("_")[5]
-    pred_len = json_file_name.split("/")[-1].split("_")[7]
-    mae = json_file_name.split("/")[-1].split("_")[9].split(".")[0]
+    # 提取文件名部分
+    file_name = os.path.basename(json_file_name)
+
+    # 去除文件扩展名
+    file_name_without_extension = os.path.splitext(file_name)[0]
+
+    # 使用 "_" 分割文件名
+    parts = file_name_without_extension.split("_")
+
+    # 提取各个参数
+    model_name = parts[0]
+    dataset_name = parts[1]
+    trace_name = parts[2]
+    pattern = parts[3]
+    seq_len_index = parts.index("seq") + 1
+    seq_len = int(parts[seq_len_index])
+    pred_len_index = parts.index("pred") + 1
+    pred_len = int(parts[pred_len_index])
+
     csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_plot_data.csv")
 
     df = pd.read_csv(csv_filename)
