@@ -317,6 +317,8 @@ def draw_prediction(save_root="./plot_trace", json_file_name=None):
     pred = df["pred"].values
     true = df["true"].values
 
+    mae = extra_parameters["mae"]
+
     x_list = [x, x]
     file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_mae_{mae}.pdf"
 
