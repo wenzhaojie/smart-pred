@@ -91,7 +91,7 @@ class NeuralForecast_model(Basic_model):
         if extra_parameters is None:
             extra_parameters = self.default_extra_parameters
 
-        if self.scaler and extra_parameters["is_scaler"]:
+        if extra_parameters["is_scaler"]:
             # 如果需要标准化处理，则进行标准化处理
             history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
 
