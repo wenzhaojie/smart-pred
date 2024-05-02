@@ -31,14 +31,14 @@ extra_parameter_dict = {
         "seq_len": 1440*2,
         "pred_len": 1440,
         "max_steps": 100,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
     "NBEATS": {
         "seq_len": 1440*2,
         "pred_len": 1440,
         "max_steps": 100,
-        "is_scaler": False,
+        "is_scaler": True,
         "is_round": False,
     },
     "PatchTST": {
