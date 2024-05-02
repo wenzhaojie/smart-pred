@@ -182,6 +182,25 @@ class Basic_model:
         # 如果预测的长度超过了test的长度，需要截断
         predict = predict[:len(test)]
 
+        # 计算评估指标
+        metric_dict = get_metric_dict(test, predict)
+        _cold_start_invocation_ratio = metric_dict["cold_start_invocation_ratio"]
+        _utilization_ratio = metric_dict["utilization_ratio"]
+        _over_provisioned_ratio = metric_dict["over_provisioned_ratio"]
+        _cold_start_time_slot_ratio = metric_dict["cold_start_time_slot_ratio"]
+
+        # 如果归一化
+        if extra_parameters["is_scaler"]:
+            predict = self.scaler.transform(np.array(predict).reshape(-1, 1)).reshape(-1)
+
+        # 计算评估指标
+        metric_dict = get_metric_dict(test, predict)
+        # 覆盖原有的评估指标
+        metric_dict["cold_start_invocation_ratio"] = _cold_start_invocation_ratio
+        metric_dict["utilization_ratio"] = _utilization_ratio
+        metric_dict["over_provisioned_ratio"] = _over_provisioned_ratio
+        metric_dict["cold_start_time_slot_ratio"] = _cold_start_time_slot_ratio
+
         print("predict:", predict)
 
         # 转换成ndarray
