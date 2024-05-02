@@ -105,8 +105,12 @@ trace_dict = {
         ("huawei_private", "39"),
         ("huawei_private", "40"),
         ("huawei_private", "60"),
-        ("crane", "9"),
-        ("crane", "14"),
+        ("huawei_private", "72"),
+        ("huawei_private", "75"),
+        ("huawei_private", "92"),
+        ("huawei_private", "100"),
+        ("huawei_private", "116"),
+        ("huawei_private", "129"),
     ],
     "continuous": [
         ("crane", "9"),
@@ -118,13 +122,11 @@ trace_dict = {
         ("huawei_public", "43"),
         ("huawei_public", "51"),
         ("huawei_public", "61"),
-        ("huawei_public","97"),
+        ("huawei_public", "97"),
     ],
     "bursty": [ # HUAWEI private 10,14,54,55,56,57,68,69,71
         ("huawei_private", "10"),
         ("huawei_private", "14"),
-        ("huawei_private", "54"),
-        ("huawei_private", "55"),
         ("huawei_private", "56"),
         ("huawei_private", "57"),
         ("huawei_private", "68"),
@@ -134,7 +136,7 @@ trace_dict = {
 }
 
 
-def exp(start_day=1, end_day=10):
+def exp(start_day=0, end_day=8):
     # 所有的model
     model_name_list = ["MLP", "NHITS", "NBEATS", "PatchTST", "TimesNet", "Maxvalue", "Avgvalue", "Movingavg", "Movingmax"]
     # model_name_list = ["TimesNet", "Maxvalue", "Movingavg",]
