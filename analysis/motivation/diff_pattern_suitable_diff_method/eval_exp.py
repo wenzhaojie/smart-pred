@@ -207,8 +207,7 @@ def exp(start_day=0, end_day=8):
                     mae = log_dict["mae"]
                     # 保留2位小数
                     mae = "{:.2f}".format(mae)
-                    # 生成文件名
-                    file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_mae_{mae}.pdf"
+
                     # 绘制图像
                     x = np.arange(len(test))
                     pred = predict
@@ -216,14 +215,23 @@ def exp(start_day=0, end_day=8):
                     x_list = [x, x]
 
                     # 将画图的数据保存在csv中
-                    csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_data.csv")
+                    csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_plot_data.csv")
                     import pandas as pd
                     df = pd.DataFrame({
                         "x_list": x_list,
                         "pred": pred,
                         "true": true,
                     })
+                    df.to_csv(csv_filename, index=False)
 
+                    # 生成文件名
+                    file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_mae_{mae}.pdf"
+                    # 将extra_parameters写入json
+                    json_file_name = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_extra_parameters.json")
+                    import json
+                    with open(json_file_name, "w") as f:
+                        json.dump(extra_parameters, f)
+                    print(f"已经保存 {json_file_name}!")
 
                     my_plotter.plot_lines(
                         x_list=x_list,
