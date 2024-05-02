@@ -134,7 +134,7 @@ trace_dict = {
 }
 
 
-def exp():
+def exp(start_day=1, end_day=10):
     # 所有的model
     model_name_list = ["MLP", "NHITS", "NBEATS", "PatchTST", "TimesNet", "Maxvalue", "Avgvalue", "Movingavg", "Movingmax"]
     # model_name_list = ["TimesNet", "Maxvalue", "Movingavg",]
@@ -162,7 +162,14 @@ def exp():
                 dataset = CraneDataset()
             else:
                 raise Exception(f"Unknown dataset name: {dataset_name}")
-            trace = dataset.get_data_by_day_range(0, 4, "requests", trace_name, "minute")
+
+            trace = dataset.get_data_by_day_range(
+                start_day=start_day,
+                end_day=end_day,
+                data_type="requests",
+                function_name=trace_name,
+                resolution="minute"
+            )
 
             # 转换成np.array
             trace = np.array(trace)
@@ -172,9 +179,9 @@ def exp():
                 if trace[i] != trace[i]:
                     trace[i] = 0
 
-            # 前4天作为train，5天作为test
-            train = trace[:1440*4]
-            test = trace[1440*4:1440*5]
+            # 划分训练集和测试集
+            train = trace[0:1440*(end_day-start_day)]
+            test = trace[1440*(end_day-start_day):1440*(end_day-start_day)+1]
 
             # 打印一下len
             print(f"len(train): {len(train)}")
@@ -204,9 +211,20 @@ def exp():
                     x = np.arange(len(test))
                     pred = predict
                     true = test
+                    x_list = [x, x]
+
+                    # 将画图的数据保存在csv中
+                    csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_data.csv")
+                    import pandas as pd
+                    df = pd.DataFrame({
+                        "x_list": x_list,
+                        "pred": pred,
+                        "true": true,
+                    })
+
 
                     my_plotter.plot_lines(
-                        x_list=[x, x],
+                        x_list=x_list,
                         line_data_list=[pred, true],
                         legend_label_list=["Predict", "True"],
                         legend_title=None,
