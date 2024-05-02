@@ -224,6 +224,7 @@ def exp(start_day=0, end_day=8):
                         "x": x,
                         "pred": pred,
                         "true": true,
+                        "extra_parameters": extra_parameters,
                     })
                     df.to_csv(csv_filename, index=False)
 
