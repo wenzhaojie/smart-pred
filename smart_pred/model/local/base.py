@@ -207,9 +207,6 @@ class Basic_model:
         predict = np.array(predict)
         predict_t = time.time() - start_t
 
-        # 计算评估指标
-        metric_dict = get_metric_dict(test, predict)
-
         # 收集日志
         log_dict = {
             "model": self.name,
