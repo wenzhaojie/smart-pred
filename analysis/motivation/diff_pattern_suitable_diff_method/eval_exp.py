@@ -215,6 +215,9 @@ def exp(start_day=0, end_day=8):
 
 
                     # 将画图的数据保存在csv中
+                    # 创建文件夹
+                    if not os.path.exists(save_root):
+                        os.makedirs(save_root)
                     csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_plot_data.csv")
                     import pandas as pd
                     df = pd.DataFrame({
