@@ -37,7 +37,7 @@ class NeuralForecast_model(Basic_model):
         max_steps = extra_parameters["max_steps"]
 
         # 数据预处理
-        if self.scaler and extra_parameters["is_scaler"]:
+        if extra_parameters["is_scaler"]:
             history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
 
         # 准备训练数据
