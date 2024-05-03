@@ -11,6 +11,7 @@ from smart_pred.model.local.passive import Movingavg_model, Movingmax_model
 from smart_pred.model.local.neuralforecast_model import NeuralForecast_model
 
 import numpy as np
+from copy import deepcopy
 
 from py_plotter.plot import Plotter
 
@@ -214,6 +215,8 @@ def exp(start_day=0, end_day=8):
                     pred = predict
                     true = test
 
+                    x_list = [x, x]
+
 
                     # 将画图的数据保存在csv中
                     # 创建文件夹
@@ -222,7 +225,7 @@ def exp(start_day=0, end_day=8):
                     csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_plot_data.csv")
                     import pandas as pd
                     df = pd.DataFrame({
-                        "x": x,
+                        "x": deepcopy(x),
                         "pred": pred,
                         "true": true,
                     })
@@ -240,7 +243,6 @@ def exp(start_day=0, end_day=8):
                         json.dump(extra_parameters, f)
                     print(f"已经保存 {json_file_name}!")
 
-                    x_list = [x, x]
                     my_plotter.plot_lines(
                         x_list=x_list,
                         line_data_list=[pred, true],
