@@ -228,6 +228,11 @@ def exp(start_day=0, end_day=8):
                     if max(true) < 5:
                         y_tick_ndigits = 1
 
+                    # 如果y大于 10000，那么使用科学计数法
+                    is_y_tick_sci = False
+                    if max(true) > 10000:
+                        is_y_tick_sci = True
+
                     my_plotter.plot_lines(
                         x_list=x_list,
                         line_data_list=[pred, true],
@@ -242,6 +247,7 @@ def exp(start_day=0, end_day=8):
                         filename=file_name,
                         x_tick_ndigits=0,
                         y_tick_ndigits=y_tick_ndigits,
+                        is_y_tick_sci=is_y_tick_sci,
                     )
                     print(f"已经绘制 {file_name}!")
 
