@@ -223,6 +223,11 @@ def exp(start_day=0, end_day=8):
                     # 生成文件名
                     file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_mae_{mae}.pdf"
 
+                    # 如果y的最大值小于5，那么y_tick_ndigits=1
+                    y_tick_ndigits = 0
+                    if max(true) < 5:
+                        y_tick_ndigits = 1
+
                     my_plotter.plot_lines(
                         x_list=x_list,
                         line_data_list=[pred, true],
@@ -236,7 +241,7 @@ def exp(start_day=0, end_day=8):
                         save_root=save_root,
                         filename=file_name,
                         x_tick_ndigits=0,
-                        y_tick_ndigits=1,
+                        y_tick_ndigits=y_tick_ndigits,
                     )
                     print(f"已经绘制 {file_name}!")
 
