@@ -236,7 +236,7 @@ def exp(start_day=0, end_day=8):
                         save_root=save_root,
                         filename=file_name,
                         x_tick_ndigits=0,
-                        y_tick_ndigits=0,
+                        y_tick_ndigits=1,
                     )
                     print(f"已经绘制 {file_name}!")
 
