@@ -185,7 +185,7 @@ def exp(start_day=0, end_day=8):
 
             # 划分训练集和测试集
             train = trace[0:1440*(end_day-start_day)]
-            test = trace[1440*(end_day-start_day):1440*(end_day-start_day)+1]
+            test = trace[1440*(end_day-start_day):1440*(end_day-start_day+1)]
 
             # 打印一下len
             print(f"len(train): {len(train)}")
@@ -217,31 +217,11 @@ def exp(start_day=0, end_day=8):
 
                     x_list = [x, x]
 
-
-                    # 将画图的数据保存在csv中
-                    # 创建文件夹
-                    if not os.path.exists(save_root):
-                        os.makedirs(save_root)
-                    csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_plot_data.csv")
-                    import pandas as pd
-                    df = pd.DataFrame({
-                        "x": deepcopy(x),
-                        "pred": pred,
-                        "true": true,
-                    })
-                    df.to_csv(csv_filename, index=False)
-
                     seq_len = extra_parameters["seq_len"]
                     pred_len = extra_parameters["pred_len"]
 
                     # 生成文件名
                     file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_mae_{mae}.pdf"
-                    # 将extra_parameters写入json
-                    json_file_name = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_extra_parameters.json")
-                    import json
-                    with open(json_file_name, "w") as f:
-                        json.dump(extra_parameters, f)
-                    print(f"已经保存 {json_file_name}!")
 
                     my_plotter.plot_lines(
                         x_list=x_list,
@@ -284,62 +264,6 @@ def exp(start_day=0, end_day=8):
                 print(f"已经保存 {csv_filename}!")
 
 
-def draw_prediction(save_root="./plot_trace", json_file_name=None):
-    # json_file_name = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_extra_parameters.json")
-    with open(json_file_name, "r") as f:
-        extra_parameters = json.load(f)
-    print(f"extra_parameters: {extra_parameters}")
-    # load csv
-    import pandas as pd
-    # csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_plot_data.csv")
-
-    # 提取文件名部分
-    file_name = os.path.basename(json_file_name)
-
-    # 去除文件扩展名
-    file_name_without_extension = os.path.splitext(file_name)[0]
-
-    # 使用 "_" 分割文件名
-    parts = file_name_without_extension.split("_")
-
-    # 提取各个参数
-    model_name = parts[0]
-    dataset_name = parts[1]
-    trace_name = parts[2]
-    pattern = parts[3]
-    seq_len_index = parts.index("seq") + 1
-    seq_len = int(parts[seq_len_index])
-    pred_len_index = parts.index("pred") + 1
-    pred_len = int(parts[pred_len_index])
-
-    csv_filename = os.path.join(save_root, f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_plot_data.csv")
-
-    df = pd.read_csv(csv_filename)
-    x = df["x"].values
-    pred = df["pred"].values
-    true = df["true"].values
-
-    mae = extra_parameters["mae"]
-
-    x_list = [x, x]
-    file_name = f"{model_name}_{dataset_name}_{trace_name}_{pattern}_seq_len_{seq_len}_pred_len_{pred_len}_mae_{mae}.pdf"
-
-    my_plotter.plot_lines(
-        x_list=x_list,
-        line_data_list=[pred, true],
-        legend_label_list=["Predict", "True"],
-        legend_title=None,
-        title=None,
-        x_grid=True,
-        y_grid=True,
-        x_label="Time",
-        y_label="Requests",
-        save_root=save_root,
-        filename=file_name,
-        x_tick_ndigits=0,
-        y_tick_ndigits=0,
-    )
-    print(f"已经绘制 {file_name}!")
 
 
 

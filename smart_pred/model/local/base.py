@@ -182,6 +182,8 @@ class Basic_model:
         # 如果预测的长度超过了test的长度，需要截断
         predict = predict[:len(test)]
 
+        print(f"len(predict):{len(predict)}")
+
         # 计算评估指标
         metric_dict = get_metric_dict(test, predict)
         _cold_start_invocation_ratio = metric_dict["cold_start_invocation_ratio"]
