@@ -16,7 +16,7 @@ from copy import deepcopy
 from py_plotter.plot import Plotter
 
 my_plotter = Plotter(
-    figsize=(10, 8),
+    figsize=(20, 8),
     fontsize=30,
 )
 
