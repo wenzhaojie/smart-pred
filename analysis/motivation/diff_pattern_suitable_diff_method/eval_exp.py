@@ -60,27 +60,27 @@ extra_parameter_dict = {
     "Maxvalue": {
         "seq_len": 1440 * 3,
         "pred_len": 1440,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
     },
     "Avgvalue": {
         "seq_len": 1440 * 3,
         "pred_len": 1440,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
     },
     "Movingavg": {
         "seq_len": 1440 * 3,
         "pred_len": 1,
         "moving_window": 10,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
     },
     "Movingmax": {
         "seq_len": 1440 * 3,
         "pred_len": 1,
         "moving_window": 10,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
     },
 }
@@ -138,7 +138,7 @@ trace_dict = {
 }
 
 
-def exp(start_day=0, end_day=8):
+def exp(start_day=0, end_day=4):
     # 所有的model
     model_name_list = ["MLP", "NHITS", "NBEATS", "PatchTST", "TimesNet", "Maxvalue", "Avgvalue", "Movingavg", "Movingmax"]
     # model_name_list = ["TimesNet", "Maxvalue", "Movingavg",]
