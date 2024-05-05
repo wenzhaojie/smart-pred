@@ -216,6 +216,8 @@ def exp(start_day=0, end_day=4):
                     # 保留两位小数
                     mae = "{:.2f}".format(mae)
 
+
+
                     # 绘制图像
                     x = np.arange(len(test))
                     pred = predict
