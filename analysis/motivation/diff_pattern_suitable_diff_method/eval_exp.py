@@ -9,6 +9,7 @@ from smart_pred.dataset.huawei import HuaweiPublicDataset, HuaweiPrivateDataset
 from smart_pred.model.local.period import Maxvalue_model, Avgvalue_model
 from smart_pred.model.local.passive import Movingavg_model, Movingmax_model
 from smart_pred.model.local.neuralforecast_model import NeuralForecast_model
+from smart_pred.utils.metrics import get_metric_dict
 
 import numpy as np
 from copy import deepcopy
@@ -33,14 +34,14 @@ extra_parameter_dict = {
         "seq_len": 1440*2,
         "pred_len": 1440,
         "max_steps": 100,
-        "is_scaler": True,
+        "is_scaler": False, # 打开scaler效果会很差
         "is_round": False,
     },
     "NBEATS": {
         "seq_len": 1440*2,
         "pred_len": 1440,
         "max_steps": 100,
-        "is_scaler": True,
+        "is_scaler": False, # 打开scaler效果会很差
         "is_round": False,
     },
     "PatchTST": {
@@ -141,7 +142,7 @@ trace_dict = {
 def exp(start_day=0, end_day=4):
     # 所有的model
     model_name_list = ["MLP", "NHITS", "NBEATS", "PatchTST", "TimesNet", "Maxvalue", "Avgvalue", "Movingavg", "Movingmax"]
-    # model_name_list = ["TimesNet", "Maxvalue", "Movingavg",]
+    # model_name_list = ["NHITS",]
     # 所有的pattern
     pattern_list = ["period", "continuous", "sparse", "bursty"]
     # 存储结果
@@ -205,9 +206,14 @@ def exp(start_day=0, end_day=4):
                     print(f"完成训练！")
                     # 预测
                     log_dict, predict = model.use_future_rolling_evaluation(train=train, test=test, extra_parameters=extra_parameters)
-                    # MAE
-                    mae = log_dict["mae"]
-                    # 保留2位小数
+                    # 计算标准化之后的MAE
+                    _pred = deepcopy(predict)
+                    _test = deepcopy(test)
+                    _pred = model.scaler.transform(_pred.reshape(-1, 1)).reshape(-1)
+                    _test = model.scaler.transform(_test.reshape(-1, 1)).reshape(-1)
+                    # get_metric_dict
+                    mae = get_metric_dict(_test, _pred)["mae"]
+                    # 保留两位小数
                     mae = "{:.2f}".format(mae)
 
                     # 绘制图像

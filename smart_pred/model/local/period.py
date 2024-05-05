@@ -113,9 +113,6 @@ class Avgvalue_model(Basic_model):
         # 如果标准化
         if extra_parameters["is_scaler"]:
             history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
-        # 如果is_round为True，则对数据进行四舍五入处理
-        if extra_parameters["is_round"]:
-            history = np.round(history)
 
         num_of_history_day = int(len(history) / 1440)
         history_for_predict = history[-num_of_history_day*1440:]
