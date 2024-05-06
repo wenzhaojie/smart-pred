@@ -27,7 +27,7 @@ extra_parameter_dict = {
         "seq_len": 1440*2,
         "pred_len": 1440,
         "max_steps": 100,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
     },
     "NHITS": {
@@ -48,14 +48,14 @@ extra_parameter_dict = {
         "seq_len": 1440, # 1440*2 OOM
         "pred_len": 1440,
         "max_steps": 100,
-        "is_scaler": True,
+        "is_scaler": False, # 打开scaler效果会很差
         "is_round": False,
     },
     "TimesNet": {
         "seq_len": 1440*2,
         "pred_len": 1440,
         "max_steps": 100,
-        "is_scaler": True,
+        "is_scaler": False, # 打开scaler效果会很差
         "is_round": False,
     },
     "Maxvalue": {
