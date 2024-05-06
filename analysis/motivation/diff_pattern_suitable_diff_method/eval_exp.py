@@ -209,6 +209,9 @@ def exp(start_day=0, end_day=4):
                     # 计算标准化之后的MAE
                     _pred = deepcopy(predict)
                     _test = deepcopy(test)
+
+                    # 重新fit
+                    model.scaler.fit_transform(train.reshape(-1, 1)).reshape(-1)
                     _pred = model.scaler.transform(_pred.reshape(-1, 1)).reshape(-1)
                     _test = model.scaler.transform(_test.reshape(-1, 1)).reshape(-1)
                     # get_metric_dict
