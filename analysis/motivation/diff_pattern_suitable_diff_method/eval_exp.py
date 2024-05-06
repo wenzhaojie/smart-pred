@@ -215,7 +215,7 @@ def exp(start_day=0, end_day=4):
                     _pred = model.scaler.transform(_pred.reshape(-1, 1)).reshape(-1)
                     _test = model.scaler.transform(_test.reshape(-1, 1)).reshape(-1)
                     # get_metric_dict
-                    mae = get_metric_dict(_test, _pred)["mae"]
+                    mae = get_metric_dict(_test, _pred)["mae"] # 这里面已经把mae转换成了标准化之后的mae
                     # 保留两位小数
                     mae = "{:.2f}".format(mae)
 
