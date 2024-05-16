@@ -257,7 +257,6 @@ def generate_processed_dataset(num_of_app=10, output_pickle_root="../analysis/av
     if not os.path.exists(output_pickle_root):
         os.mkdir(output_pickle_root)
 
-
     # 利用多进程来处理数据集
     # 我们按照每一个app来划分数据集，每一个app的处理任务作为一个进程任务
 
