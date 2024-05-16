@@ -19,6 +19,7 @@ from py_plotter.plot import Plotter
 my_plotter = Plotter(
     figsize=(20, 8),
     fontsize=30,
+    font="Times New Roman",
 )
 
 
