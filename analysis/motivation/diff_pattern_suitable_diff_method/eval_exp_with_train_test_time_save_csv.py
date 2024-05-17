@@ -256,6 +256,9 @@ def exp(start_day=0, end_day=4):
                         is_y_tick_sci = True
 
                     # 将pred和true 保存到csv文件中
+                    # 创建 save_root
+                    if not os.path.exists(save_root):
+                        os.makedirs(save_root)
                     csv_filename = os.path.join(save_root, f"{file_name}.csv")
                     import pandas as pd
                     df = pd.DataFrame({
