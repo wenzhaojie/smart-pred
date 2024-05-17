@@ -45,7 +45,7 @@ def plot_pred_and_true(csv_filepath, save_root, filename, x_tick_ndigits=0, y_ti
         y_label="Requests",
         save_root=save_root,
         filename=file_name,
-        x_tick_ndigits=0,
+        x_tick_ndigits=x_tick_ndigits,
         y_tick_ndigits=y_tick_ndigits,
         is_y_tick_sci=is_y_tick_sci,
     )
