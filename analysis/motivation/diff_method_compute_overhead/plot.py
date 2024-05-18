@@ -14,23 +14,13 @@ my_plotter = Plotter(
 
 def stat_data():
     # 文件名列表
-    file_names = [
-        "Avgvalue_crane_2_continuous_seq_len_4320_pred_len_1440_mae_0.13_train_t_0.00_pred_t_0.02.pdf.csv",
-        "MLP_crane_2_continuous_seq_len_2880_pred_len_1440_mae_0.46_train_t_1.02_pred_t_0.13.pdf.csv",
-        "Maxvalue_crane_2_continuous_seq_len_4320_pred_len_1440_mae_0.10_train_t_0.00_pred_t_0.01.pdf.csv",
-        "Movingavg_crane_2_continuous_seq_len_4320_pred_len_1_mae_0.26_train_t_0.00_pred_t_0.02.pdf.csv",
-        "Movingmax_crane_2_continuous_seq_len_4320_pred_len_1_mae_0.26_train_t_0.00_pred_t_0.02.pdf.csv",
-        "NBEATS_crane_2_continuous_seq_len_2880_pred_len_1440_mae_0.71_train_t_2.35_pred_t_0.18.pdf.csv",
-        "NHITS_crane_2_continuous_seq_len_2880_pred_len_1440_mae_0.57_train_t_2.05_pred_t_0.16.pdf.csv",
-        "PatchTST_crane_2_continuous_seq_len_1440_pred_len_1440_mae_0.42_train_t_42.02_pred_t_0.31.pdf.csv",
-        "TimesNet_crane_2_continuous_seq_len_2880_pred_len_1440_mae_0.45_train_t_530.24_pred_t_0.29.pdf.csv"
-    ]
+    file_names = os.listdir("./plot_trace")
 
     # 提取train_t和pred_t的正则表达式模式
     pattern = r'mae_([\d.]+)_train_t_([\d.]+)_pred_t_([\d.]+)\.'
 
     # 存储模型名称及其对应的train_t和pred_t值
-    model_stats = {}
+    model_stats_list = []
 
     # 解析每个文件名
     for file_name in file_names:
@@ -44,7 +34,7 @@ def stat_data():
             # 提取模型名称
             model_name = file_name.split("_")[0]
             # 存储模型名称及其对应的train_t和pred_t值
-            model_stats[model_name] = (mae, train_t, pred_t)
+            model_stats_list.append((model_name, mae, train_t, pred_t))
 
     # 写入csv
     # 最开始一行是表头
@@ -52,11 +42,8 @@ def stat_data():
         f.write("Model,MAE,Train_t,Pred_t\n")
 
         # 打印模型名称及其对应的train_t和pred_t值
-        for model, stats in model_stats.items():
-            print(f"Model: {model}, mae: {stats[0]}, train_t: {stats[1]}, pred_t: {stats[2]}")
-            f.write(f"{model},{stats[0]},{stats[1]},{stats[2]}\n")
-            pass
-        pass
+        for model_name, mae, train_t, pred_t in model_stats_list:
+            f.write(f"{model_name},{mae},{train_t},{pred_t}\n")
 
 
 def plot_non_dl_data():
@@ -72,8 +59,9 @@ def plot_non_dl_data():
     # 提取 MAE、Train_t 和 Pred_t 数据
     for model_name in model_name_list:
         model_data = df[df['Model'].str.startswith(model_name)]
-        mae_value_list.append(model_data['MAE'].iloc[0])
-        compute_t_value_list.append(model_data['Train_t'].iloc[0] + model_data['Pred_t'].iloc[0])
+        # 取平均值
+        mae_value_list.append(model_data['MAE'].mean())
+        compute_t_value_list.append((model_data['Train_t'] + model_data['Pred_t']).mean())
 
     # 绘制图表
     my_plotter = Plotter(
@@ -100,6 +88,9 @@ def plot_non_dl_data():
         line_y_min=0,
         line_y_max=0.025,
         line_y_tick_ndigits=3,
+        is_hatch=True,
+        is_marker=True,
+        markersize=30,
     )
 
 
