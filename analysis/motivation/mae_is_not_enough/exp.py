@@ -24,6 +24,7 @@ public_dataset = HuaweiPublicDataset()
 my_plotter = Plotter(
     figsize=(20,8),
     fontsize=30,
+    font_thirdparty="SimHei",
 )
 
 def compare_prediction_metrics():
@@ -65,7 +66,7 @@ def compare_prediction_metrics():
         "seq_len": 1440 * 3,
         "pred_len": 1440,
         "moving_window": 5,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
         "period_length": 1440,
     }
@@ -100,6 +101,12 @@ def compare_prediction_metrics():
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
     title = f"MAE: {log['mae']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
 
+    # 保存 Predict 和 True 数据到csv
+    import pandas as pd
+    df = pd.DataFrame({"pred": pred, "true": true})
+    csv_file_name = file_name.replace(".pdf", ".csv")
+    df.to_csv(f"./plot_trace/{csv_file_name}", index=False)
+
     my_plotter.plot_lines(
         x_list=[x, x],
         line_data_list=[pred, true],
@@ -123,7 +130,7 @@ def compare_prediction_metrics():
         "seq_len": 1440 * 3,
         "pred_len": 1440,
         "moving_window": 5,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
         "period_length": 1440,
     }
@@ -159,6 +166,12 @@ def compare_prediction_metrics():
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
     title = f"MAE: {log['mae']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
 
+    # 保存 Predict 和 True 数据到csv
+    import pandas as pd
+    df = pd.DataFrame({"pred": pred, "true": true})
+    csv_file_name = file_name.replace(".pdf", ".csv")
+    df.to_csv(f"./plot_trace/{csv_file_name}", index=False)
+
     my_plotter.plot_lines(
         x_list=[x, x],
         line_data_list=[pred, true],
@@ -183,7 +196,7 @@ def compare_prediction_metrics():
         "seq_len": 1440 * 3,
         "pred_len": 1440,
         "moving_window": 5,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
         "period_length": 1440,
     }
@@ -237,6 +250,12 @@ def compare_prediction_metrics():
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
     title = f"MAE: {log['mae']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
 
+    # 保存 Predict 和 True 数据到csv
+    import pandas as pd
+    df = pd.DataFrame({"pred": pred, "true": true})
+    csv_file_name = file_name.replace(".pdf", ".csv")
+    df.to_csv(f"./plot_trace/{csv_file_name}", index=False)
+
     my_plotter.plot_lines(
         x_list=[x, x],
         line_data_list=[pred, true],
@@ -263,7 +282,7 @@ def compare_prediction_metrics():
         "seq_len": moving_window,
         "pred_len": 1,
         "moving_window": moving_window,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
         "period_length": 1440,
     }
@@ -297,6 +316,12 @@ def compare_prediction_metrics():
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Ratio: {log['cold_start_invocation_ratio']:.2f}"
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
     title = f"MAE: {log['mae']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
+
+    # 保存 Predict 和 True 数据到csv
+    import pandas as pd
+    df = pd.DataFrame({"pred": pred, "true": true})
+    csv_file_name = file_name.replace(".pdf", ".csv")
+    df.to_csv(f"./plot_trace/{csv_file_name}", index=False)
 
     my_plotter.plot_lines(
         x_list=[x, x],
@@ -321,7 +346,7 @@ def compare_prediction_metrics():
         "seq_len": moving_window,
         "pred_len": 1,
         "moving_window": moving_window,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
         "period_length": 1440,
     }
@@ -355,6 +380,12 @@ def compare_prediction_metrics():
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Ratio: {log['cold_start_invocation_ratio']:.2f}"
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
     title = f"MAE: {log['mae']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
+
+    # 保存 Predict 和 True 数据到csv
+    import pandas as pd
+    df = pd.DataFrame({"pred": pred, "true": true})
+    csv_file_name = file_name.replace(".pdf", ".csv")
+    df.to_csv(f"./plot_trace/{csv_file_name}", index=False)
 
     my_plotter.plot_lines(
         x_list=[x, x],
@@ -379,7 +410,7 @@ def compare_prediction_metrics():
         "seq_len": moving_window,
         "pred_len": 1,
         "moving_window": moving_window,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
         "period_length": 1440,
     }
@@ -413,6 +444,12 @@ def compare_prediction_metrics():
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Ratio: {log['cold_start_invocation_ratio']:.2f}"
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
     title = f"MAE: {log['mae']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
+
+    # 保存 Predict 和 True 数据到csv
+    import pandas as pd
+    df = pd.DataFrame({"pred": pred, "true": true})
+    csv_file_name = file_name.replace(".pdf", ".csv")
+    df.to_csv(f"./plot_trace/{csv_file_name}", index=False)
 
     my_plotter.plot_lines(
         x_list=[x, x],
@@ -437,7 +474,7 @@ def compare_prediction_metrics():
         "seq_len": moving_window,
         "pred_len": 1,
         "moving_window": moving_window,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
         "period_length": 1440,
     }
@@ -472,6 +509,12 @@ def compare_prediction_metrics():
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
     title = f"MAE: {log['mae']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
 
+    # 保存 Predict 和 True 数据到csv
+    import pandas as pd
+    df = pd.DataFrame({"pred": pred, "true": true})
+    csv_file_name = file_name.replace(".pdf", ".csv")
+    df.to_csv(f"./plot_trace/{csv_file_name}", index=False)
+
     my_plotter.plot_lines(
         x_list=[x, x],
         line_data_list=[pred, true],
@@ -495,7 +538,7 @@ def compare_prediction_metrics():
         "seq_len": 5,
         "pred_len": 1,
         "moving_window": 5,
-        "is_scaler": True,
+        "is_scaler": False,
         "is_round": False,
         "period_length": 1440,
     }
@@ -529,6 +572,13 @@ def compare_prediction_metrics():
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Ratio: {log['cold_start_invocation_ratio']:.2f}"
     # title = f"MAE: {log['mae']:.2f}, RMSE: {log['rmse']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
     title = f"MAE: {log['mae']:.2f}, Cold Start Ratio: {log['cold_start_invocation_ratio'] * 100:.2f}%"
+
+    # 保存 Predict 和 True 数据到csv
+    import pandas as pd
+    df = pd.DataFrame({"pred": pred, "true": true})
+    csv_file_name = file_name.replace(".pdf", ".csv")
+    df.to_csv(f"./plot_trace/{csv_file_name}", index=False)
+
 
     my_plotter.plot_lines(
         x_list=[x, x],

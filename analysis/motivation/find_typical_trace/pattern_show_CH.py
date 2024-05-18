@@ -17,18 +17,19 @@ from py_plotter.plot import Plotter
 my_plotter = Plotter(
     figsize=(10, 8),
     fontsize=30,
+    font_thirdparty="SimHei",
 )
 
 
 def plot_type_trace(y, type, y_tick_interval=None):
-    file_name = f"typical_{type}_trace.pdf"
+    file_name = f"typical_{type}_trace_CH.pdf"
     x = list(range(len(y)))
     my_plotter.plot_lines(
         x_list=[x],
         line_data_list=[y],
         title=None,
-        x_label="Timestamp (minute)",
-        y_label="Requests",
+        x_label="时间戳 (分钟)",
+        y_label="请求数",
         save_root="./results",
         x_grid=True,
         y_grid=True,
@@ -67,6 +68,7 @@ def draw_sparse():
     # 截取前200个
     y = y[:200]
     # 保存画图数据到csv
+    pd.DataFrame(y).to_csv("sparse.csv", index=False)
     plot_type_trace(y, "sparse", y_tick_interval=1)
 
 # 画周期性的
