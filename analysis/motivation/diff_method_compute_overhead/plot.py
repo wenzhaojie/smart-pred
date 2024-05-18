@@ -79,7 +79,7 @@ def plot_non_dl_data():
     my_plotter = Plotter(
         figsize=(10, 8),
         dpi=300,
-        fontsize=30,
+        fontsize=25,
         font_thirdparty="YaHei",
     )
     # 创建文件夹save_root
@@ -93,12 +93,13 @@ def plot_non_dl_data():
         line_data_list=[compute_t_value_list],
         legend_label_list=None,
         save_root="./results",
-        filename="non_dl_data_plot",
+        filename="non_dl_data_plot.pdf",
         legend_title="Legend",
-        bar_y_min=min(mae_value_list),
-        bar_y_max=max(mae_value_list),
-        line_y_min=min(compute_t_value_list),
-        line_y_max=max(compute_t_value_list),
+        bar_y_min=0,
+        bar_y_max=0.5,
+        line_y_min=0,
+        line_y_max=0.025,
+        line_y_tick_ndigits=3,
     )
 
 
