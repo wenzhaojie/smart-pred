@@ -1,3 +1,4 @@
+import os
 import re
 
 import pandas as pd
@@ -81,13 +82,16 @@ def plot_non_dl_data():
         fontsize=30,
         font_thirdparty="YaHei",
     )
+    # 创建文件夹save_root
+    if not os.path.exists("./results"):
+        os.makedirs("./results")
     my_plotter.plot_bars_and_lines(
         x_data=model_name_list,
         bar_y_label="MAE",
         line_y_label="Train_t + Pred_t",
         bar_data_list=[mae_value_list],
         line_data_list=[compute_t_value_list],
-        legend_label_list=["MAE", "Train_t + Pred_t"],
+        legend_label_list=None,
         save_root="./results",
         filename="non_dl_data_plot",
         legend_title="Legend",

@@ -1,0 +1,10 @@
+Model,MAE,Train_t,Pred_t
+Avgvalue,0.13,0.0,0.02
+MLP,0.46,1.02,0.13
+Maxvalue,0.1,0.0,0.01
+Movingavg,0.26,0.0,0.02
+Movingmax,0.26,0.0,0.02
+NBEATS,0.71,2.35,0.18
+NHITS,0.57,2.05,0.16
+PatchTST,0.42,42.02,0.31
+TimesNet,0.45,530.24,0.29
