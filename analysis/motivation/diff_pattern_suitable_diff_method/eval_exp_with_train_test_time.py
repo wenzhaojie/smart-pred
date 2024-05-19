@@ -20,6 +20,7 @@ my_plotter = Plotter(
     figsize=(20, 8),
     fontsize=30,
     font="Times New Roman",
+    font_thirdparty="YaHei",
 )
 
 
