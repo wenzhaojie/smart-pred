@@ -77,15 +77,15 @@ def plot_non_dl_data():
     # compute_t_value_list 乘 1000 变成 ms
     compute_t_value_list = [x * 1000 for x in compute_t_value_list]
     my_plotter.plot_bars_and_lines(
-        x_label="Model",
+        x_label="模型名称",
         x_data=model_name_list,
         bar_y_label="MAE",
-        line_y_label="Total Compute Time (ms)",
+        line_y_label="总计算时间 (毫秒)",
         bar_data_list=[mae_value_list],
         line_data_list=[compute_t_value_list],
         legend_label_list=None,
         save_root="./results",
-        filename="non_dl_data_plot.pdf",
+        filename="non_dl_data_plot_CH.pdf",
         legend_title="Legend",
         bar_y_min=0,
         bar_y_max=1.0,
@@ -127,15 +127,15 @@ def plot_dl_data():
         os.makedirs("./results")
 
     my_plotter.plot_bars_and_lines(
-        x_label="Model",
+        x_label="模型名称",
         x_data=model_name_list,
         bar_y_label="MAE",
-        line_y_label="Total Compute Time (s)",
+        line_y_label="总计算时间 (秒)",
         bar_data_list=[mae_value_list],
         line_data_list=[compute_t_value_list],
         legend_label_list=None,
         save_root="./results",
-        filename="dl_data_plot.pdf",
+        filename="dl_data_plot_CH.pdf",
         legend_title="Legend",
         bar_y_min=0,
         bar_y_max=1.2,

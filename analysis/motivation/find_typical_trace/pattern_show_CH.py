@@ -17,7 +17,7 @@ from py_plotter.plot import Plotter
 my_plotter = Plotter(
     figsize=(10, 8),
     fontsize=30,
-    font_thirdparty="SimHei",
+    font_thirdparty="YaHei",
 )
 
 
