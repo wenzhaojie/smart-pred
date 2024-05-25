@@ -51,7 +51,7 @@ def plot_non_dl_data():
     df = pd.read_csv("model_stats.csv")
 
     # 提取模型名称
-    model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax"]
+    model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"]
 
     mae_value_list = []
     compute_t_value_list = []
@@ -59,6 +59,7 @@ def plot_non_dl_data():
     # 提取 MAE、Train_t 和 Pred_t 数据
     for model_name in model_name_list:
         model_data = df[df['Model'].str.startswith(model_name)]
+        print(f"model_data: {model_data}")
         # 取平均值
         mae_value_list.append(model_data['MAE'].mean())
         compute_t_value_list.append((model_data['Train_t'] + model_data['Pred_t']).mean())
@@ -151,7 +152,7 @@ def plot_dl_data():
 
 
 if __name__ == '__main__':
-    # stat_data()
+    stat_data()
     plot_non_dl_data()
     plot_dl_data()
     pass

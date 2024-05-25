@@ -51,7 +51,7 @@ def plot_non_dl_data():
     df = pd.read_csv("model_stats.csv")
 
     # 提取模型名称
-    model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax"]
+    model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"]
 
     mae_value_list = []
     compute_t_value_list = []
