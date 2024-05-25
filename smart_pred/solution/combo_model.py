@@ -21,23 +21,23 @@ class ComboModel(nn.Module):
         self.pred_len = pred_len  # 预测长度
 
         # 定义用于结合模型输出的神经网络层
-        self.fc1 = nn.Linear(num_models * pred_len, 128)
+        self.fc1 = nn.Linear(num_models * (pred_len), 128)  # 加入回测准确率，所以每个模型的输入维度加1
         self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, pred_len)
 
-    def forward(self, preds, train_losses):
-        # 沿着最后一个维度拼接所有预测
-        combined_pred = torch.cat(preds, dim=-1)
+    def forward(self, preds, backtesting_loss):
+        # 沿着最后一个维度拼接所有预测和训练损失
+        combined_input = torch.cat((preds, backtesting_loss.unsqueeze(1)), dim=-1)
 
         # 根据模型训练损失计算权重
-        weights = F.softmax(-torch.tensor(train_losses), dim=0)  # 使用负的训练损失以优先考虑较低的损失
+        weights = F.softmax(-backtesting_loss, dim=0)  # 使用负的训练损失以优先考虑较低的损失
 
         # 将权重应用到组合的预测上
-        weighted_pred = combined_pred * weights.unsqueeze(1)  # 将权重扩展以匹配预测维度
-        weighted_pred = torch.sum(weighted_pred, dim=0)  # 沿着模型维度求和
+        weighted_input = combined_input * weights.unsqueeze(1)  # 将权重扩展以匹配输入维度
+        weighted_input = torch.sum(weighted_input, dim=0)  # 沿着模型维度求和
 
         # 进一步组合的神经网络层
-        x = F.relu(self.fc1(weighted_pred))
+        x = F.relu(self.fc1(weighted_input))
         x = F.relu(self.fc2(x))
         pred_combo = self.fc3(x)
 
