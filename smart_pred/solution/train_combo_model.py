@@ -351,7 +351,7 @@ class Exp:
 
     def train(self, epochs):
         self.combo_model.train()
-        dataloader = DataLoader(self.custom_dataset, batch_size=10, shuffle=True)
+        dataloader = DataLoader(self.custom_dataset, batch_size=1, shuffle=True)
 
         for epoch in range(epochs):
             epoch_loss = 0.0
@@ -420,7 +420,7 @@ class Exp:
 
 
 if __name__ == "__main__":
-    # # 先生成数据集
+    # # 先生成不同模型的预测结果与准确率的数据集，用来训练融合模型
     # generate_custom_dataset_with_csv(
     #     model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"],
     #     history_len=1440*4,
@@ -432,5 +432,5 @@ if __name__ == "__main__":
     exp.init_dataloader()
     exp.train(epochs=100)
     # 然后绘制一些样本
-    exp.plot_samples(dataloader=DataLoader(exp.custom_dataset, batch_size=1, shuffle=True), num_samples=5)
+    exp.plot_samples(dataloader=DataLoader(exp.custom_dataset, batch_size=1, shuffle=True), num_samples=20)
     pass
