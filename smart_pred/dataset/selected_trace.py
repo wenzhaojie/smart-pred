@@ -30,3 +30,9 @@ class HuaweiPrivateSelected:
         return function_name_list
 
 
+    def get_selected_trace(self):
+        function_name_list = [
+            28,39,40,60,72,73,75,86,88,91,92,94,96,97,100,102,104,107,116,124,126,127,129,130,131,132,135,136,146,147,148,150,155,163,179,183,190,194,195,199
+        ]
+
+
