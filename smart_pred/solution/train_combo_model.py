@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 from torch import optim
 
 from smart_pred.solution.combo_model import ComboModel
@@ -18,6 +19,7 @@ from smart_pred.model.local.neuralforecast_model import NeuralForecast_model
 from smart_pred.model.local.fourier import Crane_dsp_model
 
 from smart_pred.utils.metrics import get_metric_dict
+from sklearn.preprocessing import StandardScaler
 
 
 # 现在开始训练这个模型
@@ -291,9 +293,10 @@ class CustomDataset(Dataset):
     def __init__(self, csv_file_dir, model_name_list):
         self.csv_file_dir = csv_file_dir
         self.model_name_list = model_name_list
+        self.num_files = len(os.listdir(csv_file_dir))
 
     def __len__(self):
-        pass
+        return self.num_files
 
     def __getitem__(self, index):
         # 根据index获取csv文件
@@ -308,6 +311,14 @@ class CustomDataset(Dataset):
             backtesting_loss = model_name_series["backtesting_loss"].values[0]
             model_pred = json.loads(model_name_series["model_pred"].values[0])
             true_pred = json.loads(model_name_series["true_pred"].values[0])
+
+            # 归一化 model_pred 和 true_pred
+            scaler = StandardScaler()
+            true_pred = scaler.fit_transform(np.array(true_pred).reshape(-1, 1)).reshape(-1)
+            model_pred = scaler.transform(np.array(model_pred).reshape(-1, 1)).reshape(-1)
+            # 还原list
+            true_pred = true_pred.tolist()
+            model_pred = model_pred.tolist()
 
             model_name_dict = {
                 "model_name": model_name,
@@ -325,8 +336,8 @@ class Exp:
     def __init__(self, model_name_list):
         self.custom_dataset = None
         self.model_name_list = model_name_list
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.combo_model = ComboModel(num_models=len(model_name_list), history_len=1440*4, pred_len=1440).to(self.device)
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "mps")
+        self.combo_model = ComboModel(num_models=len(model_name_list), pred_len=1440).to(self.device)
         self.optimizer = optim.Adam(self.combo_model.parameters(), lr=0.001)
         self.criterion = torch.nn.MSELoss()
 
@@ -340,7 +351,7 @@ class Exp:
 
     def train(self, epochs):
         self.combo_model.train()
-        dataloader = DataLoader(self.custom_dataset, batch_size=1, shuffle=True)
+        dataloader = DataLoader(self.custom_dataset, batch_size=10, shuffle=True)
 
         for epoch in range(epochs):
             epoch_loss = 0.0
@@ -348,18 +359,21 @@ class Exp:
                 self.optimizer.zero_grad()
                 # 构造模型的输入
                 nn_model_input = []
+                true_pred = None
                 for model_data in data:
                     model_pred = torch.tensor(model_data["model_pred"]).float().to(self.device)
                     true_pred = torch.tensor(model_data["true_pred"]).float().to(self.device)
                     backtesting_loss = torch.tensor(model_data["backtesting_loss"]).float().to(self.device)
-                    nn_model_input.append(torch.cat((model_pred, backtesting_loss.unsqueeze(0)), dim=0))
 
-                nn_model_input = torch.stack(nn_model_input, dim=0)
-                preds = nn_model_input[:, :-1]
+                    # nn_model_input 的维度为 (num_models, pred_len+1)
+                    nn_model_input.append(torch.cat((model_pred, backtesting_loss), dim=0))
+                nn_model_input = torch.stack(nn_model_input)
+                true_pred = true_pred.unsqueeze(0)
+
+
                 # Forward pass
                 pred_combo = self.combo_model.forward(
-                    preds=preds,
-                    backtesting_loss=backtesting_loss
+                    x=nn_model_input
                 )
 
                 # Compute loss
@@ -373,11 +387,50 @@ class Exp:
 
             print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss}")
 
+    def plot_samples(self, dataloader, num_samples=5):
+        with torch.no_grad():
+            for i, data in enumerate(dataloader):
+                if i >= num_samples:
+                    break
+                # 构造模型的输入
+                nn_model_input = []
+                true_pred = None
+                for model_data in data:
+                    model_pred = torch.tensor(model_data["model_pred"]).float().to(self.device)
+                    true_pred = torch.tensor(model_data["true_pred"]).float().to(self.device)
+                    backtesting_loss = torch.tensor(model_data["backtesting_loss"]).float().to(self.device)
+
+                    # nn_model_input 的维度为 (num_models, pred_len+1)
+                    nn_model_input.append(torch.cat((model_pred, backtesting_loss), dim=0))
+                nn_model_input = torch.stack(nn_model_input)
+                true_pred = true_pred.unsqueeze(0)
+
+                # Forward pass
+                pred_combo = self.combo_model.forward(
+                    x=nn_model_input
+                )
+
+                # 绘制预测值和真实值的对比图
+                plt.figure()
+                plt.plot(pred_combo.squeeze().cpu().numpy(), label='Prediction')
+                plt.plot(true_pred.squeeze().cpu().numpy(), label='True')
+                plt.title(f'Sample {i + 1} Prediction vs True')
+                plt.legend()
+                plt.show()
+
 
 if __name__ == "__main__":
-    # 先生成数据集
-    generate_custom_dataset_with_csv(
-        model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"],
-        history_len=1440*4,
-        pred_len=1440
-    )
+    # # 先生成数据集
+    # generate_custom_dataset_with_csv(
+    #     model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"],
+    #     history_len=1440*4,
+    #     pred_len=1440
+    # )
+
+    # 然后训练模型
+    exp = Exp(model_name_list=["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"])
+    exp.init_dataloader()
+    exp.train(epochs=100)
+    # 然后绘制一些样本
+    exp.plot_samples(dataloader=DataLoader(exp.custom_dataset, batch_size=1, shuffle=True), num_samples=5)
+    pass
