@@ -7,7 +7,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from torch import optim
 
-from smart_pred.solution.flatten_linear.combo_model import ComboModel
+from smart_pred.solution.combo_model import ComboModel
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -332,11 +332,105 @@ class CustomDataset(Dataset):
         return model_name_dict_list
 
 
-if __name__ == "__main__":
-    # 先生成不同模型的预测结果与准确率的数据集，用来训练融合模型
-    generate_custom_dataset_with_csv(
-        model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"],
-        history_len=1440*4,
-        pred_len=1440
-    )
+class Exp:
+    def __init__(self, model_name_list):
+        self.custom_dataset = None
+        self.model_name_list = model_name_list
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "mps")
+        self.combo_model = ComboModel(num_models=len(model_name_list), pred_len=1440).to(self.device)
+        self.optimizer = optim.Adam(self.combo_model.parameters(), lr=0.001)
+        self.criterion = torch.nn.MSELoss()
 
+    def init_dataloader(self):
+        # Construct CustomDataset
+        csv_file_dir = "./trace_dataset"
+        self.custom_dataset = CustomDataset(
+            csv_file_dir=csv_file_dir,
+            model_name_list=self.model_name_list
+        )
+
+    def train(self, epochs):
+        self.combo_model.train()
+        dataloader = DataLoader(self.custom_dataset, batch_size=1, shuffle=True)
+
+        for epoch in range(epochs):
+            epoch_loss = 0.0
+            for batch_idx, data in enumerate(dataloader):
+                self.optimizer.zero_grad()
+                # 构造模型的输入
+                nn_model_input = []
+                true_pred = None
+                for model_data in data:
+                    model_pred = torch.tensor(model_data["model_pred"]).float().to(self.device)
+                    true_pred = torch.tensor(model_data["true_pred"]).float().to(self.device)
+                    backtesting_loss = torch.tensor(model_data["backtesting_loss"]).float().to(self.device)
+
+                    # nn_model_input 的维度为 (num_models, pred_len+1)
+                    nn_model_input.append(torch.cat((model_pred, backtesting_loss), dim=0))
+                nn_model_input = torch.stack(nn_model_input)
+                true_pred = true_pred.unsqueeze(0)
+
+
+                # Forward pass
+                pred_combo = self.combo_model.forward(
+                    x=nn_model_input
+                )
+
+                # Compute loss
+                loss = self.criterion(pred_combo, true_pred)
+
+                # Backward pass and optimization
+                loss.backward()
+                self.optimizer.step()
+
+                epoch_loss += loss.item()
+
+            print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_loss}")
+
+    def plot_samples(self, dataloader, num_samples=5):
+        with torch.no_grad():
+            for i, data in enumerate(dataloader):
+                if i >= num_samples:
+                    break
+                # 构造模型的输入
+                nn_model_input = []
+                true_pred = None
+                for model_data in data:
+                    model_pred = torch.tensor(model_data["model_pred"]).float().to(self.device)
+                    true_pred = torch.tensor(model_data["true_pred"]).float().to(self.device)
+                    backtesting_loss = torch.tensor(model_data["backtesting_loss"]).float().to(self.device)
+
+                    # nn_model_input 的维度为 (num_models, pred_len+1)
+                    nn_model_input.append(torch.cat((model_pred, backtesting_loss), dim=0))
+                nn_model_input = torch.stack(nn_model_input)
+                true_pred = true_pred.unsqueeze(0)
+
+                # Forward pass
+                pred_combo = self.combo_model.forward(
+                    x=nn_model_input
+                )
+
+                # 绘制预测值和真实值的对比图
+                plt.figure()
+                plt.plot(pred_combo.squeeze().cpu().numpy(), label='Prediction')
+                plt.plot(true_pred.squeeze().cpu().numpy(), label='True')
+                plt.title(f'Sample {i + 1} Prediction vs True')
+                plt.legend()
+                plt.show()
+
+
+if __name__ == "__main__":
+    # # 先生成不同模型的预测结果与准确率的数据集，用来训练融合模型
+    # generate_custom_dataset_with_csv(
+    #     model_name_list = ["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"],
+    #     history_len=1440*4,
+    #     pred_len=1440
+    # )
+
+    # 然后训练模型
+    exp = Exp(model_name_list=["Avgvalue", "Maxvalue", "Movingavg", "Movingmax", "Dsp"])
+    exp.init_dataloader()
+    exp.train(epochs=100)
+    # 然后绘制一些样本
+    exp.plot_samples(dataloader=DataLoader(exp.custom_dataset, batch_size=1, shuffle=True), num_samples=20)
+    pass
