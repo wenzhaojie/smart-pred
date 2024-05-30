@@ -40,7 +40,7 @@ class Quantile_model(Basic_model):
             X = np.arange(len(data))
             # 构建分位数回归模型并拟合
             quantile = extra_parameters["quantile"]
-            model = sm.QuantReg(data, sm.add_constant(X)).fit(q=quantile)
+            model = sm.QuantReg(data, sm.add_constant(X)).fit(q=quantile, max_iter=1000)
             # 预测下一个周期的点
             X_pred = np.arange(len(data)+1)
             next_prediction = model.predict(sm.add_constant(X_pred))
