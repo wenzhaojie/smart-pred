@@ -220,8 +220,8 @@ def generate_custom_dataset_with_csv(model_name_list, history_len=1440*4, pred_l
         df = pd.DataFrame(columns=["model_name", "backtesting_loss", "model_pred", "true_pred"])
         for model_name in model_name_list:
             # 对于每一个模型，我们需要计算backtesting_loss
-            history_for_backtesting = trace[:(history_len-1440)]
-            true_for_backtesting = trace[(history_len-1440):history_len]
+            history_for_backtesting = trace[:(history_len-pred_len)]
+            true_for_backtesting = trace[(history_len-pred_len):history_len]
 
             extra_parameters = extra_parameter_dict[model_name]
             # 训练模型
@@ -258,8 +258,8 @@ def generate_custom_dataset_with_csv(model_name_list, history_len=1440*4, pred_l
             model_pred = predict
             # 我们需要将这些数据加入到df中
             # 检查一下这些数据的长度
-            assert len(model_pred) == 1440
-            assert len(true_for_pred) == 1440
+            assert len(model_pred) == pred_len
+            assert len(true_for_pred) == pred_len
             assert backtesting_loss >= 0
             assert model_name in model_name_list
 

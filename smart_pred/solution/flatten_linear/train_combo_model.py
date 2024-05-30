@@ -343,7 +343,7 @@ class Exp:
 
     def init_dataloader(self):
         # Construct CustomDataset
-        csv_file_dir = "./trace_dataset"
+        csv_file_dir = "../trace_dataset"
         self.custom_dataset = CustomDataset(
             csv_file_dir=csv_file_dir,
             model_name_list=self.model_name_list
