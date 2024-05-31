@@ -4,7 +4,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
+
 from torch import optim
 
 from smart_pred.solution.flatten_linear.combo_model import ComboModel
