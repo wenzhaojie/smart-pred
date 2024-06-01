@@ -57,7 +57,7 @@ class StatsForecast_model(Basic_model):
         # 训练模型
         self.sf = StatsForecast(
             models=[self.model],
-            freq='H'
+            freq='h'
         )
         self.sf.fit(df=self.Y_df)
         print(f"模型 {self.name} 训练完成")
@@ -94,7 +94,7 @@ def Test():
     x = np.linspace(0, 100, 1000)
     y = np.sin(x)
 
-    seq_len = 400
+    seq_len = 200
     pred_len = 100
 
     history = y[:-pred_len]
