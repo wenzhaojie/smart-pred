@@ -122,7 +122,10 @@ def plot_method_pattern_avg_mae():
     print(df)
     # 画图
     bar_data_list = []
-    legend_label_list = df["method"].unique()
+    # legend_label_list = df["method"].unique()
+    # legend_label_list = ['Avgvalue', 'Maxvalue', 'Movingavg', 'Movingmax', 'NBEATS', 'NHITS', 'PatchTST', 'TimesNet']
+    legend_label_list = ['Movingavg', 'Movingmax', 'NBEATS', 'NHITS', 'PatchTST', 'TimesNet']
+    print(legend_label_list)
     for method in legend_label_list:
         bar_data = df[df["method"] == method]["avg_mae"].tolist()
         bar_data_list.append(bar_data)
@@ -143,7 +146,7 @@ def plot_method_pattern_avg_mae():
         legend_title=None,
         save_root=save_root,
         filename="plot_method_pattern_avg_mae_CH.pdf",
-        legend_ncol=2,
+        legend_ncol=1,
     )
 
 
