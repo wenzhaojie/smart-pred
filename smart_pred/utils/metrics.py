@@ -117,6 +117,73 @@ def cold_start_time_slot_ratio(y_pred, y_test):
     _cold_start_time_slot_ratio = cold_start_time_slot_count / len(y_test)  # 计算cold_start_time_slot_ratio
     return _cold_start_time_slot_ratio
 
+
+def selective_asymmetric_loss_mse(y_true, y_pred, alpha=0.95, penalty_factor=2.0, high_penalty_factor=3.0):
+    """
+    选择性非对称损失函数，对真实值（负载）变化量位于顶部alpha分位的时间点，如果预测值低估了真实值，则施加更高的惩罚。
+
+    :param y_true: 真实值数组（每个时间点的负载）
+    :param y_pred: 预测值数组
+    :param alpha: 分位数阈值，用于选择高惩罚时间点
+    :param penalty_factor: 默认的低估惩罚因子
+    :param high_penalty_factor: 选定时间点的增加惩罚因子
+    :return: 计算出的损失
+    """
+    # 计算真实值（负载）的变化量
+    load_changes = np.diff(y_true, prepend=y_true[0])  # 使用prepend保持数组尺寸一致
+
+    # 寻找负载变化量位于顶部alpha分位的阈值
+    threshold = np.percentile(load_changes, 100 * alpha)
+
+    # 确定哪些时间点属于高惩罚组
+    high_penalty_indices = load_changes >= threshold
+
+    # 计算残差
+    residuals = y_true - y_pred
+
+    # 应用惩罚
+    losses = np.where(
+        residuals > 0,
+        np.where(high_penalty_indices, high_penalty_factor * (residuals ** 2),penalty_factor * (residuals ** 2)),
+        residuals ** 2
+    )
+
+    return np.mean(losses)
+
+
+
+def selective_asymmetric_loss_mae(y_true, y_pred, alpha=0.95, penalty_factor=2.0, high_penalty_factor=3.0):
+    """
+    选择性非对称损失函数，对真实值（负载）变化量位于顶部alpha分位的时间点，如果预测值低估了真实值，则施加更高的惩罚。
+    这一版本的损失函数基于平均绝对误差（MAE）。
+
+    :param y_true: 真实值数组（每个时间点的负载）
+    :param y_pred: 预测值数组
+    :param alpha: 分位数阈值，用于选择高惩罚时间点
+    :param penalty_factor: 默认的低估惩罚因子
+    :param high_penalty_factor: 选定时间点的增加惩罚因子
+    :return: 计算出的损失
+    """
+    # 计算真实值（负载）的变化量
+    load_changes = np.diff(y_true, prepend=y_true[0])  # 使用prepend保持数组尺寸一致
+
+    # 寻找负载变化量位于顶部alpha分位的阈值
+    threshold = np.percentile(load_changes, 100 * alpha)
+
+    # 确定哪些时间点属于高惩罚组
+    high_penalty_indices = load_changes >= threshold
+
+    # 计算残差的绝对值
+    residuals = np.abs(y_true - y_pred)
+
+    # 应用惩罚
+    losses = np.where(y_true > y_pred,
+                      np.where(high_penalty_indices, high_penalty_factor * residuals, penalty_factor * residuals),
+                      residuals)
+
+    return np.mean(losses)
+
+
 # 计算并返回一个包含多个性能指标的字典
 def get_metric_dict(y_pred, y_test):
     _rmse = rmse(y_pred=y_pred, y_test=y_test)  # 计算RMSE
@@ -128,6 +195,8 @@ def get_metric_dict(y_pred, y_test):
     _utilization_ratio = utilization_ratio(y_pred=y_pred, y_test=y_test)  # 计算utilization_ratio
     _over_provisioned_ratio = over_provisioned_ratio(y_pred=y_pred, y_test=y_test)  # 计算over_provisioned_ratio
     _cold_start_time_slot_ratio = cold_start_time_slot_ratio(y_pred=y_pred, y_test=y_test)  # 计算cold_start_time_slot_ratio
+    _selective_asymmetric_loss_mse = selective_asymmetric_loss_mse(y_true=y_test, y_pred=y_pred)  # 计算选择性非对称损失
+    _selective_asymmetric_loss_mae = selective_asymmetric_loss_mae(y_true=y_test, y_pred=y_pred)  # 计算选择性非对称损失（基于MAE）
 
     try:
         _crane_error = Crane_error().PredictionError(y_pred=y_pred, y_test=y_test)  # 尝试计算Crane_error
@@ -145,6 +214,8 @@ def get_metric_dict(y_pred, y_test):
         "utilization_ratio": _utilization_ratio,
         "over_provisioned_ratio": _over_provisioned_ratio,
         "cold_start_time_slot_ratio": _cold_start_time_slot_ratio,
+        "selective_asymmetric_loss_mse": _selective_asymmetric_loss_mse,
+        "selective_asymmetric_loss_mae": _selective_asymmetric_loss_mae
     }
     return metrics_dict
 
