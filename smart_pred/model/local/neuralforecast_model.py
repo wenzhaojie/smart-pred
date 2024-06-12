@@ -9,7 +9,16 @@ from neuralforecast import NeuralForecast
 import matplotlib.pyplot as plt
 import numpy as np
 
+# loss
+from smart_pred.utils.nf_loss import SelectiveAsymmetricMAELoss, SelectiveAsymmetricMSELoss
+from neuralforecast.losses.pytorch import MSE, MAE
 
+
+loss_dict = {
+    "SelectiveAsymmetricMAELoss": SelectiveAsymmetricMAELoss(),
+    "SelectiveAsymmetricMSELoss": SelectiveAsymmetricMSELoss(),
+    "MSELoss": MSE()
+}
 
 
 class NeuralForecast_model(Basic_model):
@@ -25,6 +34,7 @@ class NeuralForecast_model(Basic_model):
             "max_steps": 100,
             "is_scaler": False,
             "is_round": False,
+            "loss": "MSELoss"
         }
         print(f"初始化 {self.name}!")
 
@@ -41,44 +51,45 @@ class NeuralForecast_model(Basic_model):
             history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
 
         # 准备训练数据
-        Y_df = pd.DataFrame({'y': history, 'ds': pd.date_range(start='2000-01-01', periods=len(history), freq='H')})
+        Y_df = pd.DataFrame({'y': history, 'ds': pd.date_range(start='2000-01-01', periods=len(history), freq='h')})
         Y_df['unique_id'] = 'time_series'
 
         # 获取模型
+        loss_func = loss_dict[extra_parameters["loss"]]
         if self.name == "NHITS":
-            self.model = NHITS(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = NHITS(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "NBEATS":
-            self.model = NBEATS(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = NBEATS(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "NBEATSx":
-            self.model = NBEATSx(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = NBEATSx(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "TFT":
-            self.model = TFT(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = TFT(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "VanillaTransformer":
-            self.model = VanillaTransformer(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = VanillaTransformer(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "Informer":
-            self.model = Informer(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = Informer(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "Autoformer":
-            self.model = Autoformer(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = Autoformer(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "PatchTST":
-            self.model = PatchTST(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = PatchTST(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "FEDformer":
-            self.model = FEDformer(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = FEDformer(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "TimesNet":
-            self.model = TimesNet(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = TimesNet(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "RNN":
-            self.model = RNN(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = RNN(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "GRU":
-            self.model = GRU(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = GRU(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "LSTM":
-            self.model = LSTM(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = LSTM(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "TCN":
-            self.model = TCN(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = TCN(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         elif self.name == "DeepAR":
             self.model = DeepAR(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "DilatedRNN":
             self.model = DilatedRNN(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "MLP":
-            self.model = MLP(input_size=seq_len, h=pred_len, max_steps=max_steps)
+            self.model = MLP(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         else:
             raise Exception("模型名称错误！")
         # 可以添加更多模型的条件分支
@@ -132,27 +143,30 @@ def Test():
         "pred_len": pred_len,
         "is_scaler": True,
         "is_round": False,
-        "max_steps": 100
+        "max_steps": 200,
+        #"loss": "MSELoss"
+        "loss": "SelectiveAsymmetricMAELoss"
+        #"loss": "SelectiveAsymmetricMSELoss"
     }
 
     # 分别测试不同的模型
     model_names = [
-        # "NHITS",
-        # "NBEATS",
+        "NHITS",
+        #"NBEATS",
         # "NBEATSx",
         # "TFT",
         # "VanillaTransformer",
-        "DeepAR",
+        # "DeepAR",
         # "Informer",
-        # "PatchTST",
+        #"PatchTST",
         # "Autoformer", # mps不能用
         # "FEDformer", # mps不能用
-        # "TimesNet", # mps不能用
-        "RNN",
-        "GRU",
-        "LSTM",
-        "TCN",
-        "DilatedRNN",
+        #"TimesNet", # mps不能用
+        # "RNN",
+        # "GRU",
+        # "LSTM",
+        # "TCN",
+        # "DilatedRNN",
         "MLP",
     ]  # 您可以在此处添加其他模型名称
 
