@@ -107,7 +107,7 @@ class NeuralForecast_model(Basic_model):
             history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
 
         # 准备预测数据
-        Y_df = pd.DataFrame({'y': history, 'ds': pd.date_range(start='2000-01-01', periods=len(history), freq='H')})
+        Y_df = pd.DataFrame({'y': history, 'ds': pd.date_range(start='2000-01-01', periods=len(history), freq='h')})
         Y_df['unique_id'] = 'time_series'
 
         # 预测
