@@ -1,5 +1,5 @@
 from neuralforecast.utils import AirPassengersDF
-from smart_pred.utils.metrics import
+from smart_pred.utils.torch_loss import selective_asymmetric_loss_mae
 
 
 Y_df = AirPassengersDF # Defined in neuralforecast.utils
@@ -15,11 +15,15 @@ models = [LSTM(h=horizon,                    # Forecast horizon
                max_steps=500,                # Number of steps to train
                scaler_type='standard',       # Type of scaler to normalize data
                encoder_hidden_size=64,       # Defines the size of the hidden state of the LSTM
-               decoder_hidden_size=64,),     # Defines the number of hidden units of each layer of the MLP decoder
+               decoder_hidden_size=64,
+               loss=selective_asymmetric_loss_mae
+               ),     # Defines the number of hidden units of each layer of the MLP decoder
           NHITS(h=horizon,                   # Forecast horizon
                 input_size=2 * horizon,      # Length of input sequence
                 max_steps=100,               # Number of steps to train
-                n_freq_downsample=[2, 1, 1]) # Downsampling factors for each stack output
+                n_freq_downsample=[2, 1, 1],
+                loss=selective_asymmetric_loss_mae
+                ) # Downsampling factors for each stack output
           ]
 nf = NeuralForecast(models=models, freq='M')
 nf.fit(df=Y_df)
