@@ -103,28 +103,73 @@ class SelectiveAsymmetricMAELoss(BasePointLoss):
         return mean_loss  # ensure this is a tensor
 
 
+class SelectiveAsymmetricMSELoss(BasePointLoss):
+    def __init__(self, horizon_weight=None, alpha=0.95, penalty_factor=2.0, high_penalty_factor=3.0):
+        super(SelectiveAsymmetricMSELoss, self).__init__(horizon_weight=horizon_weight, outputsize_multiplier=1, output_names=[""])
+        self.alpha = alpha
+        self.penalty_factor = penalty_factor
+        self.high_penalty_factor = high_penalty_factor
+
+    def __call__(self, y: torch.Tensor, y_hat: torch.Tensor, mask=None):
+        time_dim = -1  # Assumes the last dimension is the time dimension
+
+        if y.dim() == 1:
+            y = y.unsqueeze(0).unsqueeze(0)
+            y_hat = y_hat.unsqueeze(0).unsqueeze(0)
+        elif y.dim() == 2:
+            y = y.unsqueeze(1)
+            y_hat = y_hat.unsqueeze(1)
+
+        load_changes = torch.diff(y, dim=time_dim, prepend=y[..., :1])
+        threshold = torch.quantile(load_changes, self.alpha, dim=time_dim)
+        high_penalty_indices = load_changes >= threshold.unsqueeze(time_dim)
+
+        residuals = (y - y_hat) ** 2  # Calculate squared differences for MSE
+        penalties = torch.ones_like(residuals)
+        penalties[y > y_hat] = self.penalty_factor
+
+        high_penalty_mask = high_penalty_indices & (y > y_hat)
+        penalties[high_penalty_mask] = self.high_penalty_factor
+        weighted_residuals = residuals * penalties
+
+        weights = self._compute_weights(y, mask)
+        mse_loss = _weighted_mean(weighted_residuals, weights)
+
+        return mse_loss
+
+
 
 if __name__ == '__main__':
     # Example usage
     # Define y_true and y_pred as torch.Tensors, and possibly a mask tensor.
-    y_true = torch.tensor([10.0, 12.0, 15.0, 18.0, 20.0])
-    y_pred = torch.tensor([9.0, 11.0, 14.0, 17.0, 21.0])
+    y_true = torch.tensor([10.0, 20.0, 15.0, 18.0, 20.0])
+    y_pred = torch.tensor([9.0, 11.0, 12.0, 21.0, 21.0])
 
     loss_fn = SelectiveAsymmetricMAELoss()  # Example horizon weight
     loss_value = loss_fn(y_true, y_pred)
     print(f"Selective Asymmetric MAE Loss: {loss_value}")
 
-    y_true = torch.tensor([[10.0, 12.0, 15.0, 18.0, 20.0], [10.0, 12.0, 15.0, 18.0, 20.0]])
-    y_pred = torch.tensor([[9.0, 11.0, 14.0, 17.0, 21.0], [9.0, 11.0, 14.0, 17.0, 21.0]])
+    y_true = torch.tensor([10.0, 20.0, 15.0, 18.0, 20.0])
+    y_pred = torch.tensor([9.0, 11.0, 12.0, 21.0, 21.0])
 
     loss_fn = SelectiveAsymmetricMAELoss()  # Example horizon weight
     loss_value = loss_fn(y_true, y_pred)
     print(f"Selective Asymmetric MAE Loss: {loss_value}")
 
-    y_true = torch.tensor([[10.0, 12.0, 15.0, 18.0, 20.0], [10.0, 12.0, 15.0, 18.0, 20.0], [10.0, 12.0, 15.0, 18.0, 20.0]])
-    y_pred = torch.tensor([[9.0, 11.0, 14.0, 17.0, 21.0], [9.0, 11.0, 14.0, 17.0, 21.0], [9.0, 11.0, 14.0, 17.0, 21.0]])
+    y_true = torch.tensor([10.0, 20.0, 15.0, 18.0, 20.0])
+    y_pred = torch.tensor([9.0, 11.0, 12.0, 21.0, 21.0])
 
     loss_fn = SelectiveAsymmetricMAELoss()  # Example horizon weight
     loss_value = loss_fn(y_true, y_pred)
     print(f"Selective Asymmetric MAE Loss: {loss_value}")
+
+
+    # Example SelectiveAsymmetricMSELoss
+    y_true = torch.tensor([10.0, 20.0, 15.0, 18.0, 20.0])
+    y_pred = torch.tensor([9.0, 11.0, 12.0, 21.0, 21.0])
+
+    loss_fn = SelectiveAsymmetricMSELoss()  # Example horizon weight
+    loss_value = loss_fn(y_true, y_pred)
+    print(f"Selective Asymmetric MSE Loss: {loss_value}")
+
 
