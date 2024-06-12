@@ -143,7 +143,7 @@ def Test():
         "pred_len": pred_len,
         "is_scaler": True,
         "is_round": False,
-        "max_steps": 200,
+        "max_steps": 100,
         #"loss": "MSELoss"
         "loss": "SelectiveAsymmetricMAELoss"
         #"loss": "SelectiveAsymmetricMSELoss"
