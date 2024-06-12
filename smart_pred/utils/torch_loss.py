@@ -37,9 +37,12 @@ def selective_asymmetric_loss_mae(y_true, y_pred, alpha=0.95, penalty_factor=2.0
 
     return torch.mean(losses)
 
-# 示例用法
-y_true = torch.tensor([10.0, 12.0, 15.0, 18.0, 20.0])
-y_pred = torch.tensor([9.0, 11.0, 14.0, 17.0, 21.0])
 
-loss = selective_asymmetric_loss_mae(y_true, y_pred)
-print(f"Calculated loss: {loss.item()}")
+
+if __name__ == '__main__':
+    # 示例用法
+    y_true = torch.tensor([10.0, 12.0, 15.0, 18.0, 20.0])
+    y_pred = torch.tensor([9.0, 11.0, 14.0, 17.0, 21.0])
+
+    loss = selective_asymmetric_loss_mae(y_true, y_pred)
+    print(f"Calculated loss: {loss.item()}")
