@@ -36,7 +36,6 @@ class Quantile_model(Basic_model):
         for i in range(period):
             # 从历史数据中选取相同相位的数据
             data = [history[j] for j in range(i, n, period)]
-            print(len(data))
             # 构建自变量
             X = np.arange(len(data))
             # 构建分位数回归模型并拟合

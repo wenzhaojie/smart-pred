@@ -7,7 +7,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from torch import optim
 
-from smart_pred.solution.combo_model import ComboModel
+from smart_pred.solution.flatten_linear.combo_model import ComboModel
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -290,9 +290,10 @@ def generate_custom_dataset_with_csv(model_name_list, history_len=1440*4, pred_l
 
 
 class CustomDataset(Dataset):
-    def __init__(self, csv_file_dir, model_name_list):
+    def __init__(self, csv_file_dir, model_name_list, patch_len=100):
         self.csv_file_dir = csv_file_dir
         self.model_name_list = model_name_list
+        self.patch_len = patch_len
         self.num_files = len(os.listdir(csv_file_dir))
 
     def __len__(self):
@@ -306,6 +307,7 @@ class CustomDataset(Dataset):
         # 获取model_name, backtesting_loss, model_pred, true_pred
         model_name_dict_list = []
         for model_name in self.model_name_list:
+
             # 获取model_name下的backtesting_loss, model_pred, true_pred
             model_name_series = df[df["model_name"] == model_name]
             backtesting_loss = model_name_series["backtesting_loss"].values[0]
@@ -316,6 +318,11 @@ class CustomDataset(Dataset):
             scaler = StandardScaler()
             true_pred = scaler.fit_transform(np.array(true_pred).reshape(-1, 1)).reshape(-1)
             model_pred = scaler.transform(np.array(model_pred).reshape(-1, 1)).reshape(-1)
+
+            # 截断 pred patch 为 self.patch_len个数据
+            true_pred = true_pred[:self.patch_len]
+            model_pred = model_pred[:self.patch_len]
+
             # 还原list
             true_pred = true_pred.tolist()
             model_pred = model_pred.tolist()
@@ -337,13 +344,13 @@ class Exp:
         self.custom_dataset = None
         self.model_name_list = model_name_list
         self.device = torch.device("cuda" if torch.cuda.is_available() else "mps")
-        self.combo_model = ComboModel(num_models=len(model_name_list), pred_len=1440).to(self.device)
-        self.optimizer = optim.Adam(self.combo_model.parameters(), lr=0.001)
+        self.combo_model = ComboModel(num_models=len(model_name_list), pred_len=100).to(self.device)
+        self.optimizer = optim.Adam(self.combo_model.parameters(), lr=0.01)
         self.criterion = torch.nn.MSELoss()
 
     def init_dataloader(self):
         # Construct CustomDataset
-        csv_file_dir = "../trace_dataset"
+        csv_file_dir = "trace_dataset"
         self.custom_dataset = CustomDataset(
             csv_file_dir=csv_file_dir,
             model_name_list=self.model_name_list
@@ -369,12 +376,19 @@ class Exp:
                     nn_model_input.append(torch.cat((model_pred, backtesting_loss), dim=0))
                 nn_model_input = torch.stack(nn_model_input)
                 true_pred = true_pred.unsqueeze(0)
-
+                # print nn_model_input
+                # print(f"nn_model_input.shape: {nn_model_input.shape}")
+                # print(f"nn_model_input: {nn_model_input}")
+                # print(f"true_pred.shape: {true_pred.shape}")
+                # print(f"true_pred: {true_pred}")
 
                 # Forward pass
                 pred_combo = self.combo_model.forward(
                     x=nn_model_input
                 )
+
+                # print(f"pred_combo.shape: {pred_combo.shape}")
+                # print(f"pred_combo: {pred_combo}")
 
                 # Compute loss
                 loss = self.criterion(pred_combo, true_pred)

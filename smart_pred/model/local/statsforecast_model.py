@@ -38,7 +38,6 @@ class StatsForecast_model(Basic_model):
             history = self.scaler.fit_transform(history.reshape(-1, 1)).reshape(-1)
 
         seq_len = extra_parameters["seq_len"]
-        pred_len = extra_parameters["pred_len"]
 
         # 准备训练数据
         # 从history 截取 seq_len 长度的数据
@@ -71,7 +70,6 @@ class StatsForecast_model(Basic_model):
             history = self.scaler.transform(history.reshape(-1, 1)).reshape(-1)
 
         pred_len = extra_parameters["pred_len"]
-        seq_len = extra_parameters["seq_len"]
 
         # 预测
         Y_hat_df = self.sf.predict(h=pred_len)

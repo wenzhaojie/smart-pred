@@ -3,7 +3,7 @@ from sklearn.preprocessing import StandardScaler
 import pandas as pd
 
 from neuralforecast.models import RNN, GRU, LSTM, TCN, DeepAR, DilatedRNN, MLP, NHITS, NBEATS, NBEATSx
-from neuralforecast.models import TFT, VanillaTransformer, Informer, Autoformer, PatchTST, FEDformer, TimesNet
+from neuralforecast.models import TFT, VanillaTransformer, Informer, Autoformer, PatchTST, FEDformer, TimesNet, DLinear
 from neuralforecast import NeuralForecast
 
 import matplotlib.pyplot as plt
@@ -90,6 +90,8 @@ class NeuralForecast_model(Basic_model):
             self.model = DilatedRNN(input_size=seq_len, h=pred_len, max_steps=max_steps)
         elif self.name == "MLP":
             self.model = MLP(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
+        elif self.name == "DLinear":
+            self.model = DLinear(input_size=seq_len, h=pred_len, max_steps=max_steps, loss=loss_func)
         else:
             raise Exception("模型名称错误！")
         # 可以添加更多模型的条件分支
@@ -143,7 +145,7 @@ def Test():
         "pred_len": pred_len,
         "is_scaler": True,
         "is_round": False,
-        "max_steps": 100,
+        "max_steps": 200,
         #"loss": "MSELoss"
         "loss": "SelectiveAsymmetricMAELoss"
         #"loss": "SelectiveAsymmetricMSELoss"
@@ -151,14 +153,15 @@ def Test():
 
     # 分别测试不同的模型
     model_names = [
-        "NHITS",
-        #"NBEATS",
+        "DLinear"
+        # "NHITS",
+        # "NBEATS",
         # "NBEATSx",
         # "TFT",
         # "VanillaTransformer",
         # "DeepAR",
         # "Informer",
-        #"PatchTST",
+        # "PatchTST",
         # "Autoformer", # mps不能用
         # "FEDformer", # mps不能用
         #"TimesNet", # mps不能用
@@ -167,7 +170,7 @@ def Test():
         # "LSTM",
         # "TCN",
         # "DilatedRNN",
-        "MLP",
+        # "MLP",
     ]  # 您可以在此处添加其他模型名称
 
     i = 0

@@ -10,12 +10,10 @@ class ComboModel(nn.Module):
         self.pred_len = pred_len  # 预测长度
 
         # 定义用于结合模型输出的神经网络层
-        self.fc1 = nn.Linear(num_models * (pred_len + 1), 1024)  # 加入回测准确率，所以每个模型的输入维度加1
-        self.fc2 = nn.Linear(1024, 1024)
-        self.fc3 = nn.Linear(1024, 1024)
-        self.fc4 = nn.Linear(1024, 1024)
-        self.fc5 = nn.Linear(1024, 1024)
-        self.fc6 = nn.Linear(1024, pred_len)
+        self.fc1 = nn.Linear(num_models * (pred_len + 1), 128)  # 加入回测准确率，所以每个模型的输入维度加1
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 32)
+        self.fc4 = nn.Linear(32, pred_len)
 
     def forward(self, x):
         # x的维度为 (batch, num_models, pred_len+1)
@@ -26,9 +24,8 @@ class ComboModel(nn.Module):
         x = F.relu(self.fc1(flatten_input))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-        x = F.relu(self.fc4(x))
-        x = F.relu(self.fc5(x))
-        pred_combo = self.fc6(x)
+        # activation='linear'，即不使用激活函数
+        pred_combo = self.fc4(x)
 
         return pred_combo
 
