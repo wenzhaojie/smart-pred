@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 
 from smart_pred.model.local.base import Basic_model
@@ -7,12 +9,12 @@ import matplotlib.pyplot as plt
 from statsforecast import StatsForecast
 from statsforecast.models import AutoARIMA
 
-
+os.environ['NIXTLA_ID_AS_COL'] = '1'
 
 
 class StatsForecast_model(Basic_model):
 
-    def __init__(self, name="NHITS", scaler=StandardScaler()):
+    def __init__(self, name="AutoARIMA", scaler=StandardScaler()):
         super().__init__(name, scaler)
         self.model = None
         self.name = name

@@ -1,3 +1,5 @@
+import os
+
 from smart_pred.model.local.base import Basic_model
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
@@ -8,6 +10,7 @@ from neuralforecast import NeuralForecast
 
 import matplotlib.pyplot as plt
 import numpy as np
+os.environ['NIXTLA_ID_AS_COL'] = '1'
 
 # loss
 from smart_pred.utils.nf_loss import SelectiveAsymmetricMAELoss, SelectiveAsymmetricMSELoss
