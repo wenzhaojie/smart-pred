@@ -4,6 +4,7 @@ from sklearn import metrics  # 从sklearn库中导入metrics模块
 from sklearn.metrics import mean_squared_error  # 从sklearn.metrics中导入mean_squared_error函数
 from sklearn.metrics import r2_score  # 从sklearn.metrics中导入r2_score函数
 
+
 # 定义计算平均平方误差的函数
 def mse(y_pred, y_test):
     mse = mean_squared_error(y_test, y_pred)  # 使用sklearn的mean_squared_error计算MSE
@@ -184,6 +185,72 @@ def selective_asymmetric_loss_mae(y_true, y_pred, alpha=0.95, penalty_factor=2.0
     return np.mean(losses)
 
 
+def selective_asymmetric_sample_loss_mse(y_true, y_pred, alpha=0.95, penalty_factor=2.0, high_penalty_factor=3.0):
+    """
+    选择性非对称损失函数，对真实值（负载）变化量位于顶部alpha分位的时间点，如果预测值低估了真实值，则施加更高的惩罚。
+
+    :param y_true: 真实值数组（每个时间点的负载）
+    :param y_pred: 预测值数组
+    :param alpha: 分位数阈值，用于选择高惩罚时间点
+    :param penalty_factor: 默认的低估惩罚因子
+    :param high_penalty_factor: 选定时间点的增加惩罚因子
+    :return: 计算出的损失，是一个list
+    """
+    # 计算真实值（负载）的变化量
+    load_changes = np.diff(y_true, prepend=y_true[0])  # 使用prepend保持数组尺寸一致
+
+    # 寻找负载变化量位于顶部alpha分位的阈值
+    threshold = np.percentile(load_changes, 100 * alpha)
+
+    # 确定哪些时间点属于高惩罚组
+    high_penalty_indices = load_changes >= threshold
+
+    # 计算残差
+    residuals = y_true - y_pred
+
+    # 应用惩罚
+    losses = np.where(
+        residuals > 0,
+        np.where(high_penalty_indices, high_penalty_factor * (residuals ** 2),penalty_factor * (residuals ** 2)),
+        residuals ** 2
+    )
+
+    return losses
+
+
+
+def selective_asymmetric_sample_loss_mae(y_true, y_pred, alpha=0.95, penalty_factor=2.0, high_penalty_factor=3.0):
+    """
+    选择性非对称损失函数，对真实值（负载）变化量位于顶部alpha分位的时间点，如果预测值低估了真实值，则施加更高的惩罚。
+    这一版本的损失函数基于平均绝对误差（MAE）。
+
+    :param y_true: 真实值数组（每个时间点的负载）
+    :param y_pred: 预测值数组
+    :param alpha: 分位数阈值，用于选择高惩罚时间点
+    :param penalty_factor: 默认的低估惩罚因子
+    :param high_penalty_factor: 选定时间点的增加惩罚因子
+    :return: 计算出的损失，是一个list
+    """
+    # 计算真实值（负载）的变化量
+    load_changes = np.diff(y_true, prepend=y_true[0])  # 使用prepend保持数组尺寸一致
+
+    # 寻找负载变化量位于顶部alpha分位的阈值
+    threshold = np.percentile(load_changes, 100 * alpha)
+
+    # 确定哪些时间点属于高惩罚组
+    high_penalty_indices = load_changes >= threshold
+
+    # 计算残差的绝对值
+    residuals = np.abs(y_true - y_pred)
+
+    # 应用惩罚
+    losses = np.where(y_true > y_pred,
+                      np.where(high_penalty_indices, high_penalty_factor * residuals, penalty_factor * residuals),
+                      residuals)
+
+    return losses
+
+
 # 计算并返回一个包含多个性能指标的字典
 def get_metric_dict(y_pred, y_test):
     _rmse = rmse(y_pred=y_pred, y_test=y_test)  # 计算RMSE
@@ -229,5 +296,21 @@ def test_get_metric_dict():
     print(metric_dict)
 
 
+# 测试只有一个样本的
+def test_sample_loss():
+    print("开始测试 sample_loss")
+    y_test = np.array([1.0, 5.0, 4.0, 3.0, 2.0, 5.0, -3.0])
+    y_pred = np.array([1.0, 4.5, 3.5, 5.0, 8.0, 4.5, 1.0])
+
+    # sample loss
+    _selective_asymmetric_sample_loss_mse = selective_asymmetric_sample_loss_mse(
+        y_true=y_test,
+        y_pred=y_pred
+    )
+    print(f"selective_asymmetric_sample_loss_mse: {_selective_asymmetric_sample_loss_mse}")
+
+
+
 if __name__ == "__main__":
-    test_get_metric_dict()
+    # test_get_metric_dict()
+    test_sample_loss()

@@ -83,7 +83,7 @@ class AzureFunction2019:
 
 
 
-class TestAzureFunction2021:
+class TestAzureFunction2019:
     def __init__(self):
         pass
 
@@ -135,7 +135,7 @@ class TestAzureFunction2021:
 
 
 if __name__ == '__main__':
-    test = TestAzureFunction2021()
+    test = TestAzureFunction2019()
     # test.test_load_and_cache_dataset()
     # test.test_get_invocation_df_by_day()
     # test.test_get_hash_function_list_by_day()

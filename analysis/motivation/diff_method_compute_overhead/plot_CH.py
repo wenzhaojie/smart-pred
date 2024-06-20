@@ -70,6 +70,7 @@ def plot_non_dl_data():
         fontsize=30,
         font_thirdparty="YaHei",
     )
+    my_plotter.bar_width = 0.3
     # 创建文件夹save_root
     if not os.path.exists("./results"):
         os.makedirs("./results")
@@ -122,6 +123,7 @@ def plot_dl_data():
         fontsize=30,
         font_thirdparty="YaHei",
     )
+    my_plotter.bar_width = 0.2
     # 创建文件夹save_root
     if not os.path.exists("./results"):
         os.makedirs("./results")
