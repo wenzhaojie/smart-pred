@@ -73,7 +73,6 @@ def plot_a_figure_OpenFaaS(function_name="9"):
         "pred_len": 1440,
         "is_scaler": False,
         "is_round": False,
-        "period": 1440,
     }
 
     # # 获取Crane数据
@@ -104,6 +103,7 @@ def plot_a_figure_OpenFaaS(function_name="9"):
     model = OpenFaaS_model()
     log_dict, prediction = model.use_future_rolling_evaluation(history, test=true, extra_parameters=extra_parameters)
     print("下一个周期的预测值:", prediction)
+    print("下一个周期的真实值:", true)
 
     # 画图
     from py_plotter.plot import Plotter
@@ -135,6 +135,6 @@ def plot_a_figure_OpenFaaS(function_name="9"):
 
 
 if __name__ == "__main__":
-    plot_a_figure_hist(function_name="9")
+    # plot_a_figure_hist(function_name="9")
     plot_a_figure_OpenFaaS(function_name="9")
 

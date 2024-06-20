@@ -181,10 +181,7 @@ class OpenFaaS_model(Histogram_model):
         self.default_extra_parameters = {
             "seq_len": 1440 * 3,
             "pred_len": 1440,
-            "moving_window": 20,
-            "history_error_correct": False,
             "is_scaler": False,
-            "use_future": True,
             "is_round": True,
         }
         # print(f"self.scaler:{self.scaler}")
@@ -193,6 +190,6 @@ class OpenFaaS_model(Histogram_model):
     def cal_windows(self, history):
         # 先将history转换为 list
         prewarm_time = 0
-        keepalive_time = 15
+        keepalive_time = 10
 
         return prewarm_time, keepalive_time
