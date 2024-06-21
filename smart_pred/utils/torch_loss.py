@@ -1,6 +1,6 @@
 import torch
 
-def selective_asymmetric_loss_mae(y_true, y_pred, alpha=0.95, penalty_factor=2.0, high_penalty_factor=3.0):
+def selective_asymmetric_loss_mae(y_true, y_pred, alpha=0.95, penalty_factor=1.2, high_penalty_factor=1.5):
     """
     选择性非对称损失函数，对真实值（负载）变化量位于顶部alpha分位的时间点，如果预测值低估了真实值，则施加更高的惩罚。
     这一版本的损失函数基于平均绝对误差（MAE）。

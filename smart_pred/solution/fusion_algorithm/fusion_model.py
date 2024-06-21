@@ -26,86 +26,10 @@ fusion_model_dict = {
     "Quantile_model": Quantile_model(name="Quantile_model"),
 }
 
-fusion_model_params_dict = {
-    "NHITS": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1440,
-        "is_scaler": False,
-        "is_round": False,
-        "period": 1440,
-    },
-    "NBEATS": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1440,
-        "is_scaler": False,
-        "is_round": False,
-        "period": 1440,
-    },
-    "PatchTST": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1440,
-        "is_scaler": False,
-        "is_round": False,
-        "period": 1440,
-    },
-    "DLinear": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1440,
-        "is_scaler": False,
-        "is_round": False,
-        "period": 1440,
-    },
-    "Movingavg_model": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1,
-        "moving_window": 20,
-        "is_scaler": False,
-        "is_round": True,
-    },
-    "Movingmax_model": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1,
-        "moving_window": 20,
-        "is_scaler": False,
-        "is_round": True,
-    },
-    "Movingmin_model": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1,
-        "moving_window": 20,
-        "is_scaler": False,
-        "is_round": True,
-    },
-    "Maxvalue_model": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1440,
-        "is_scaler": False,
-        "is_round": False,
-    },
-    "Minvalue_model": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1440,
-        "is_scaler": False,
-        "is_round": False,
-    },
-    "Avgvalue_model": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1440,
-        "is_scaler": False,
-        "is_round": False,
-    },
-    "Quantile_model": {
-        "seq_len": 1440 * 3,
-        "pred_len": 1440,
-        "is_scaler": False,
-        "is_round": False,
-        "quantile": 0.5,
-    },
-}
 
 
 class Fusion_model(Basic_model):
-    def __init__(self, name="Fusion_model"):
+    def __init__(self,  fusion_model_params_dict, name="Fusion_model"):
         super(Fusion_model, self).__init__(name=name)
         self.default_extra_parameters = {
             "seq_len": 1440 * 3,
@@ -117,7 +41,10 @@ class Fusion_model(Basic_model):
             "target_loss": 100,
             "determine_ratio": 0.8,
             "loss_threshold": 0.1,
+            "is_complex": True,
+            "amp": 1.1,
         }
+        self.fusion_model_params_dict = fusion_model_params_dict
 
     def train(self, history, extra_parameters=None):
         # 训练的过程很简单
@@ -130,7 +57,9 @@ class Fusion_model(Basic_model):
         for model_name in extra_parameters["simple_model_list"]:
             model = fusion_model_dict[model_name]
             # 获得模型的extra_parameters
-            model_extra_parameters = fusion_model_params_dict[model_name]
+            model_extra_parameters = self.fusion_model_params_dict[model_name]
+
+
             # 先训练
             model.train(
                 history=train_data,
@@ -145,7 +74,6 @@ class Fusion_model(Basic_model):
             print(f"{model_name}的回测结果：{log_dict}")
 
             # 计算样本损失
-            loss_name = extra_parameters["loss"]
             sample_loss = selective_asymmetric_sample_loss_mae(
                 y_pred=predict,
                 y_true=test_data,
@@ -154,14 +82,15 @@ class Fusion_model(Basic_model):
             self.simple_model_backtest_sample_loss_dict[model_name] = sample_loss
 
         # 再测试复杂模型
-        is_complex = False
+        is_complex = extra_parameters["is_complex"]
         if is_complex:
             print("开始测试复杂模型")
             self.complex_model_backtest_sample_loss_dict = {}
             for model_name in extra_parameters["complex_model_list"]:
                 model = fusion_model_dict[model_name]
                 # 获得模型的extra_parameters
-                model_extra_parameters = fusion_model_params_dict[model_name]
+                model_extra_parameters = self.fusion_model_params_dict[model_name]
+                model_extra_parameters["loss"] = extra_parameters["loss"]
                 # 先训练
                 model.train(
                     history=train_data,
@@ -176,7 +105,6 @@ class Fusion_model(Basic_model):
                 print(f"{model_name}的回测结果：{log_dict}")
 
                 # 计算样本损失
-                loss_name = extra_parameters["loss"]
                 sample_loss = selective_asymmetric_sample_loss_mae(
                     y_pred=predict,
                     y_true=test_data,
@@ -184,13 +112,22 @@ class Fusion_model(Basic_model):
                 # 保存至 complex_model_backtest_sample_loss_dict
                 self.complex_model_backtest_sample_loss_dict[model_name] = sample_loss
 
-        # 计算简单融合模型的权重
-        # 构造 simple_model_sample_weight_dict
+        # 计算融合模型的权重
+        # 构造 model_weight_dict
         # 权重的计算方法是：样本损失越小，权重越大
         # 样本损失最小的模型的权重为决定系数 determine_ratio
         # 其他模型的权重按照样本损失的大小来分配
         self.model_weight_dict = {}
-        for model_name in self.simple_model_backtest_sample_loss_dict.keys():
+
+        # 创建一个新的字典，汇合简单模型和复杂模型的loss dict
+        self.model_backtest_sample_loss_dict = {}
+        self.model_backtest_sample_loss_dict.update(self.simple_model_backtest_sample_loss_dict)
+        if is_complex:
+            self.model_backtest_sample_loss_dict.update(self.complex_model_backtest_sample_loss_dict)
+
+
+
+        for model_name in self.model_backtest_sample_loss_dict.keys():
             # 创建一个list用于保存权重
             self.model_weight_dict[model_name] = []
 
@@ -199,8 +136,8 @@ class Fusion_model(Basic_model):
             # 对不同模型，找到对应时间点的样本损失
             sample_loss_list = []
             model_name_list = []
-            for model_name in self.simple_model_backtest_sample_loss_dict.keys():
-                sample_loss_list.append(self.simple_model_backtest_sample_loss_dict[model_name][index])
+            for model_name in self.model_backtest_sample_loss_dict.keys():
+                sample_loss_list.append(self.model_backtest_sample_loss_dict[model_name][index])
                 model_name_list.append(model_name)
 
             # 计算权重
@@ -225,10 +162,11 @@ class Fusion_model(Basic_model):
         # 预测的过程也很简单
         # 对不同model进行预测
         model_predict_list_dict = {}
-        for model_name in self.simple_model_backtest_sample_loss_dict.keys():
+        for model_name in self.model_backtest_sample_loss_dict.keys():
             model = fusion_model_dict[model_name]
             # 获得模型的extra_parameters
-            model_extra_parameters = fusion_model_params_dict[model_name]
+            model_extra_parameters = self.fusion_model_params_dict[model_name]
+            model_extra_parameters["loss"] = extra_parameters["loss"]
             # 先训练
             model.train(
                 history=history,
@@ -248,6 +186,8 @@ class Fusion_model(Basic_model):
             predict = 0
             for model_name in model_predict_list_dict.keys():
                 predict += model_predict_list_dict[model_name][i] * self.model_weight_dict[model_name][i]
+                # amp
+                predict = predict * extra_parameters["amp"]
             predict_list.append(predict)
 
         return predict_list
@@ -268,10 +208,12 @@ class Fusion_model(Basic_model):
 
         # 对不同model进行预测
         model_predict_list_dict = {}
-        for model_name in self.simple_model_backtest_sample_loss_dict.keys():
+        print(f"model_backtest_sample_loss_dict.keys():{self.model_backtest_sample_loss_dict.keys()}")
+        for model_name in self.model_backtest_sample_loss_dict.keys():
             model = fusion_model_dict[model_name]
             # 获得模型的extra_parameters
-            model_extra_parameters = fusion_model_params_dict[model_name]
+            model_extra_parameters = self.fusion_model_params_dict[model_name]
+            model_extra_parameters["loss"] = extra_parameters["loss"]
             # 先训练
             model.train(
                 history=train,
@@ -291,6 +233,8 @@ class Fusion_model(Basic_model):
             predict = 0
             for model_name in model_predict_list_dict.keys():
                 predict += model_predict_list_dict[model_name][i] * self.model_weight_dict[model_name][i]
+                # amp
+                predict = predict * extra_parameters["amp"]
             predict_list.append(predict)
 
         # 如果预测的长度超过了test的长度，需要截断

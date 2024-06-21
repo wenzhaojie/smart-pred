@@ -11,7 +11,90 @@ my_plotter = Plotter(
 
 class TestFusionModel:
     def __init__(self):
-        self.model = Fusion_model()
+
+        self.fusion_model_params_dict = {
+            "NHITS": {
+                "seq_len": 1440,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+                "period": 1440,
+                "max_steps": 100,
+            },
+            "NBEATS": {
+                "seq_len": 1440,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+                "period": 1440,
+                "max_steps": 100,
+            },
+            "PatchTST": {
+                "seq_len": 1440,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+                "period": 1440,
+                "max_steps": 100,
+            },
+            "DLinear": {
+                "seq_len": 1440,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+                "period": 1440,
+                "max_steps": 100,
+            },
+            "Movingavg_model": {
+                "seq_len": 1440 * 3,
+                "pred_len": 1,
+                "moving_window": 20,
+                "is_scaler": False,
+                "is_round": True,
+                "max_steps": 100,
+            },
+            "Movingmax_model": {
+                "seq_len": 1440 * 3,
+                "pred_len": 1,
+                "moving_window": 20,
+                "is_scaler": False,
+                "is_round": True,
+                "max_steps": 100,
+            },
+            "Movingmin_model": {
+                "seq_len": 1440 * 3,
+                "pred_len": 1,
+                "moving_window": 20,
+                "is_scaler": False,
+                "is_round": True,
+            },
+            "Maxvalue_model": {
+                "seq_len": 1440 * 3,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+            },
+            "Minvalue_model": {
+                "seq_len": 1440 * 3,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+            },
+            "Avgvalue_model": {
+                "seq_len": 1440 * 3,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+            },
+            "Quantile_model": {
+                "seq_len": 1440 * 3,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+                "quantile": 0.5,
+            },
+        }
+        self.model = Fusion_model(fusion_model_params_dict=self.fusion_model_params_dict)
 
 
     def get_crane_trace_data(self, function_name="9"):
@@ -40,8 +123,6 @@ class TestFusionModel:
         train_data = data[0:1440*4]
         test_data = data[1440*4:1440*5]
 
-
-
         # extra_parameters
         extra_parameters = {
             "seq_len": 1440 * 4,
@@ -53,6 +134,8 @@ class TestFusionModel:
             "determine_ratio": 0.9,
             "is_scaler": False,
             "is_round": False,
+            "is_complex": True,
+            "amp": 1.1,
         }
 
         # 训练
@@ -81,12 +164,14 @@ class TestFusionModel:
             "pred_len": 1440,
             "period_length": 1440,
             "complex_model_list": ["NHITS", "NBEATS", "PatchTST", "DLinear"],
-            "simple_model_list": ["Movingavg_model", "Movingmax_model", "Movingmin_model", "Maxvalue_model", "Minvalue_model", "Avgvalue_model", "Quantile_model"],
-            # "simple_model_list": ["Avgvalue_model", "Quantile_model", "Maxvalue_model",],
+            # "simple_model_list": ["Movingavg_model", "Movingmax_model", "Movingmin_model", "Maxvalue_model", "Minvalue_model", "Avgvalue_model", "Quantile_model"],
+            "simple_model_list": ["Movingavg_model", "Maxvalue_model" ],
             "loss": "SelectiveAsymmetricMAELoss",
-            "determine_ratio": 1.0,
+            "determine_ratio": 1,
             "is_scaler": False,
             "is_round": False,
+            "amp": 1.05,
+            "is_complex": False,
         }
 
         # 训练
@@ -123,5 +208,5 @@ class TestFusionModel:
 
 if __name__ == "__main__":
     test_fusion_model = TestFusionModel()
-    test_fusion_model.test_train_test()
-    # test_fusion_model.test_use_future_evaluation()
+    # test_fusion_model.test_train_test()
+    test_fusion_model.test_use_future_evaluation()

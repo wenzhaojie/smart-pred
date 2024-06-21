@@ -67,75 +67,159 @@ class BasePointLoss(torch.nn.Module):
 
 # Selective Asymmetric MAE Loss
 class SelectiveAsymmetricMAELoss(BasePointLoss):
-
-    def __init__(self, horizon_weight=None, alpha=0.95, penalty_factor=2.0, high_penalty_factor=3.0):
+    def __init__(self, horizon_weight=None, penalty_factor=4, high_penalty_factor=8, top_quantile=0.95):
         super(SelectiveAsymmetricMAELoss, self).__init__(horizon_weight=horizon_weight, outputsize_multiplier=1, output_names=[""])
-        self.alpha = alpha
         self.penalty_factor = penalty_factor
         self.high_penalty_factor = high_penalty_factor
+        self.top_quantile = top_quantile
 
-    def __call__(self, y: torch.Tensor, y_hat: torch.Tensor, mask=None):
-        # Assume last dimension is the time dimension for multidimensional tensors
-        time_dim = -1
+    def __call__(self, y: torch.Tensor, y_hat: torch.Tensor, mask: torch.Tensor = None):
+        under_estimation = (y_hat < y).float()  # Underestimation mask
+        over_estimation = (y_hat >= y).float()  # Overestimation mask
 
-        if y.dim() == 1:
-            y = y.unsqueeze(0).unsqueeze(0)
-            y_hat = y_hat.unsqueeze(0).unsqueeze(0)
-        elif y.dim() == 2:
-            y = y.unsqueeze(1)
-            y_hat = y_hat.unsqueeze(1)
+        # Adapt prepend_value based on the dimensionality of y_hat
+        if y_hat.dim() > 1:  # Multi-dimensional
+            prepend_value = y_hat[:, 0:1]  # First timestep for each batch in 2D
+        else:
+            prepend_value = y_hat[0].unsqueeze(0)  # Single value in 1D
 
-        load_changes = torch.diff(y, dim=time_dim, prepend=y[..., :1])
-        threshold = torch.quantile(load_changes, self.alpha, dim=time_dim)
-        high_penalty_indices = load_changes >= threshold.unsqueeze(time_dim)
+        # Calculate absolute differences
+        pred_diff = torch.abs(torch.diff(y_hat, dim=-1, prepend=prepend_value))
 
-        residuals = torch.abs(y - y_hat)
-        penalties = torch.ones_like(residuals)
-        penalties[y > y_hat] = self.penalty_factor
+        # Calculate the quantile threshold, adapting based on the dimensionality
+        if y_hat.dim() > 1:
+            quantile_threshold = torch.quantile(pred_diff, self.top_quantile, dim=1, keepdim=True)
+        else:
+            quantile_threshold = torch.tensor([torch.quantile(pred_diff, self.top_quantile)])
 
-        high_penalty_mask = high_penalty_indices & (y > y_hat)
-        penalties[high_penalty_mask] = self.high_penalty_factor
-        weighted_residuals = residuals * penalties
+        high_penalty_mask = (pred_diff > quantile_threshold).float()
 
-        weights = self._compute_weights(y, mask)
-        mean_loss = _weighted_mean(weighted_residuals, weights)
+        # Calculate absolute losses with different penalties
+        losses = torch.abs(y - y_hat) * (under_estimation * self.penalty_factor + over_estimation)
+        losses *= (1 + high_penalty_mask * (self.high_penalty_factor - 1))
 
-        return mean_loss  # ensure this is a tensor
+        weights = self._compute_weights(y=y, mask=mask)
+        weighted_mean = _weighted_mean(losses=losses, weights=weights)
+        return weighted_mean
 
 
 class SelectiveAsymmetricMSELoss(BasePointLoss):
-    def __init__(self, horizon_weight=None, alpha=0.95, penalty_factor=2.0, high_penalty_factor=3.0):
+    def __init__(self, horizon_weight=None, penalty_factor=4, high_penalty_factor=8, top_quantile=0.95):
         super(SelectiveAsymmetricMSELoss, self).__init__(horizon_weight=horizon_weight, outputsize_multiplier=1, output_names=[""])
-        self.alpha = alpha
         self.penalty_factor = penalty_factor
         self.high_penalty_factor = high_penalty_factor
+        self.top_quantile = top_quantile
 
-    def __call__(self, y: torch.Tensor, y_hat: torch.Tensor, mask=None):
-        time_dim = -1  # Assumes the last dimension is the time dimension
+    def __call__(self, y: torch.Tensor, y_hat: torch.Tensor, mask: torch.Tensor = None):
+        under_estimation = (y_hat < y).float()
+        over_estimation = (y_hat >= y).float()
 
-        if y.dim() == 1:
-            y = y.unsqueeze(0).unsqueeze(0)
-            y_hat = y_hat.unsqueeze(0).unsqueeze(0)
-        elif y.dim() == 2:
-            y = y.unsqueeze(1)
-            y_hat = y_hat.unsqueeze(1)
+        # Adapt prepend_value based on the dimensionality of y_hat
+        if y_hat.dim() > 1:  # Check if y_hat is multidimensional
+            prepend_value = y_hat[:, 0:1]  # Taking the first timestep for each batch if it's 2D
+        else:
+            prepend_value = y_hat[0].unsqueeze(0)  # Ensure it remains 1D
 
-        load_changes = torch.diff(y, dim=time_dim, prepend=y[..., :1])
-        threshold = torch.quantile(load_changes, self.alpha, dim=time_dim)
-        high_penalty_indices = load_changes >= threshold.unsqueeze(time_dim)
+        # Calculate differences
+        pred_diff = torch.abs(torch.diff(y_hat, dim=-1, prepend=prepend_value))  # Compute absolute differences
 
-        residuals = (y - y_hat) ** 2  # Calculate squared differences for MSE
-        penalties = torch.ones_like(residuals)
-        penalties[y > y_hat] = self.penalty_factor
+        # Calculate the quantile threshold, adapting based on the dimensionality
+        if y_hat.dim() > 1:
+            quantile_threshold = torch.quantile(pred_diff, self.top_quantile, dim=1, keepdim=True)  # Each batch separately
+        else:
+            quantile_threshold = torch.tensor([torch.quantile(pred_diff, self.top_quantile)])  # Global quantile for 1D
 
-        high_penalty_mask = high_penalty_indices & (y > y_hat)
-        penalties[high_penalty_mask] = self.high_penalty_factor
-        weighted_residuals = residuals * penalties
+        high_penalty_mask = (pred_diff > quantile_threshold).float()
 
-        weights = self._compute_weights(y, mask)
-        mse_loss = _weighted_mean(weighted_residuals, weights)
+        losses = (y - y_hat) ** 2 * (under_estimation * self.penalty_factor + over_estimation)
+        losses *= (1 + high_penalty_mask * (self.high_penalty_factor - 1))
 
-        return mse_loss
+        weights = self._compute_weights(y=y, mask=mask)
+        weighted_mean = _weighted_mean(losses=losses, weights=weights)
+        return weighted_mean
+
+class MSE(BasePointLoss):
+    """Mean Squared Error
+
+    Calculates Mean Squared Error between
+    `y` and `y_hat`. MSE measures the relative prediction
+    accuracy of a forecasting method by calculating the
+    squared deviation of the prediction and the true
+    value at a given time, and averages these devations
+    over the length of the series.
+
+    $$ \mathrm{MSE}(\\mathbf{y}_{\\tau}, \\mathbf{\hat{y}}_{\\tau}) = \\frac{1}{H} \\sum^{t+H}_{\\tau=t+1} (y_{\\tau} - \hat{y}_{\\tau})^{2} $$
+
+    **Parameters:**<br>
+    `horizon_weight`: Tensor of size h, weight for each timestamp of the forecasting window. <br>
+    """
+
+    def __init__(self, horizon_weight=None):
+        super(MSE, self).__init__(
+            horizon_weight=horizon_weight, outputsize_multiplier=1, output_names=[""]
+        )
+
+    def __call__(
+        self,
+        y: torch.Tensor,
+        y_hat: torch.Tensor,
+        mask: Union[torch.Tensor, None] = None,
+    ):
+        """
+        **Parameters:**<br>
+        `y`: tensor, Actual values.<br>
+        `y_hat`: tensor, Predicted values.<br>
+        `mask`: tensor, Specifies datapoints to consider in loss.<br>
+
+        **Returns:**<br>
+        `mse`: tensor (single value).
+        """
+        losses = (y - y_hat) ** 2
+        weights = self._compute_weights(y=y, mask=mask)
+        weighted_mean = _weighted_mean(losses=losses, weights=weights)
+        return weighted_mean
+
+
+class MAE(BasePointLoss):
+    """Mean Absolute Error
+
+    Calculates Mean Absolute Error between
+    `y` and `y_hat`. MAE measures the relative prediction
+    accuracy of a forecasting method by calculating the
+    deviation of the prediction and the true
+    value at a given time and averages these devations
+    over the length of the series.
+
+    $$ \mathrm{MAE}(\\mathbf{y}_{\\tau}, \\mathbf{\hat{y}}_{\\tau}) = \\frac{1}{H} \\sum^{t+H}_{\\tau=t+1} |y_{\\tau} - \hat{y}_{\\tau}| $$
+
+    **Parameters:**<br>
+    `horizon_weight`: Tensor of size h, weight for each timestamp of the forecasting window. <br>
+    """
+
+    def __init__(self, horizon_weight=None):
+        super(MAE, self).__init__(
+            horizon_weight=horizon_weight, outputsize_multiplier=1, output_names=[""]
+        )
+
+    def __call__(
+        self,
+        y: torch.Tensor,
+        y_hat: torch.Tensor,
+        mask: Union[torch.Tensor, None] = None,
+    ):
+        """
+        **Parameters:**<br>
+        `y`: tensor, Actual values.<br>
+        `y_hat`: tensor, Predicted values.<br>
+        `mask`: tensor, Specifies datapoints to consider in loss.<br>
+
+        **Returns:**<br>
+        `mae`: tensor (single value).
+        """
+        losses = torch.abs(y - y_hat)
+        weights = self._compute_weights(y=y, mask=mask)
+        weighted_mean = _weighted_mean(losses=losses, weights=weights)
+        return weighted_mean
 
 
 
@@ -145,30 +229,56 @@ if __name__ == '__main__':
     y_true = torch.tensor([10.0, 20.0, 15.0, 18.0, 20.0])
     y_pred = torch.tensor([9.0, 11.0, 12.0, 21.0, 21.0])
 
-    loss_fn = SelectiveAsymmetricMAELoss()  # Example horizon weight
+    # mae
+    loss_fn = MAE()
+    loss_value = loss_fn(y_true, y_pred)
+    print(f"MAE Loss: {loss_value}")
+
+    # mse
+    loss_fn = MSE()
+    loss_value = loss_fn(y_true, y_pred)
+    print(f"MSE Loss: {loss_value}")
+
+
+    loss_fn = SelectiveAsymmetricMAELoss(penalty_factor=1, high_penalty_factor=1)  # Example horizon weight
     loss_value = loss_fn(y_true, y_pred)
     print(f"Selective Asymmetric MAE Loss: {loss_value}")
 
-    y_true = torch.tensor([10.0, 20.0, 15.0, 18.0, 20.0])
-    y_pred = torch.tensor([9.0, 11.0, 12.0, 21.0, 21.0])
-
-    loss_fn = SelectiveAsymmetricMAELoss()  # Example horizon weight
+    loss_fn = SelectiveAsymmetricMAELoss(penalty_factor=1, high_penalty_factor=1)  # Example horizon weight
     loss_value = loss_fn(y_true, y_pred)
     print(f"Selective Asymmetric MAE Loss: {loss_value}")
 
-    y_true = torch.tensor([10.0, 20.0, 15.0, 18.0, 20.0])
-    y_pred = torch.tensor([9.0, 11.0, 12.0, 21.0, 21.0])
-
-    loss_fn = SelectiveAsymmetricMAELoss()  # Example horizon weight
+    loss_fn = SelectiveAsymmetricMAELoss(penalty_factor=1, high_penalty_factor=1)  # Example horizon weight
     loss_value = loss_fn(y_true, y_pred)
     print(f"Selective Asymmetric MAE Loss: {loss_value}")
 
 
     # Example SelectiveAsymmetricMSELoss
-    y_true = torch.tensor([10.0, 20.0, 15.0, 18.0, 20.0])
-    y_pred = torch.tensor([9.0, 11.0, 12.0, 21.0, 21.0])
+    loss_fn = SelectiveAsymmetricMSELoss(penalty_factor=1, high_penalty_factor=1)  # Example horizon weight
+    loss_value = loss_fn(y_true, y_pred)
+    print(f"Selective Asymmetric MSE Loss: {loss_value}")
 
-    loss_fn = SelectiveAsymmetricMSELoss()  # Example horizon weight
+
+
+    # 测试二维
+    y_true = torch.tensor([[10.0, 20.0, 15.0, 18.0, 20.0], [10.0, 20.0, 15.0, 18.0, 20.0]])
+    y_pred = torch.tensor([[9.0, 11.0, 12.0, 21.0, 21.0], [9.0, 11.0, 12.0, 21.0, 21.0]])
+
+    # mae
+    loss_fn = torch.nn.L1Loss()
+    loss_value = loss_fn(y_true, y_pred)
+    print(f"MAE Loss: {loss_value}")
+
+    # mse
+    loss_fn = torch.nn.MSELoss()
+    loss_value = loss_fn(y_true, y_pred)
+    print(f"MSE Loss: {loss_value}")
+
+    loss_fn = SelectiveAsymmetricMAELoss(penalty_factor=1, high_penalty_factor=1)  # Example horizon weight
+    loss_value = loss_fn(y_true, y_pred)
+    print(f"Selective Asymmetric MAE Loss: {loss_value}")
+
+    loss_fn = SelectiveAsymmetricMSELoss(penalty_factor=1, high_penalty_factor=1)  # Example horizon weight
     loss_value = loss_fn(y_true, y_pred)
     print(f"Selective Asymmetric MSE Loss: {loss_value}")
 

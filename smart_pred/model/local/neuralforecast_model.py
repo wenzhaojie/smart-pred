@@ -14,13 +14,14 @@ os.environ['NIXTLA_ID_AS_COL'] = '1'
 
 # loss
 from smart_pred.utils.nf_loss import SelectiveAsymmetricMAELoss, SelectiveAsymmetricMSELoss
-from neuralforecast.losses.pytorch import MSE, MAE
+from smart_pred.utils.nf_loss import MSE, MAE
 
 
 loss_dict = {
     "SelectiveAsymmetricMAELoss": SelectiveAsymmetricMAELoss(),
     "SelectiveAsymmetricMSELoss": SelectiveAsymmetricMSELoss(),
-    "MSELoss": MSE()
+    "MSELoss": MSE(),
+    "MAELoss": MAE(),
 }
 
 
@@ -148,10 +149,11 @@ def Test():
         "pred_len": pred_len,
         "is_scaler": True,
         "is_round": False,
-        "max_steps": 200,
-        #"loss": "MSELoss"
-        "loss": "SelectiveAsymmetricMAELoss"
-        #"loss": "SelectiveAsymmetricMSELoss"
+        "max_steps": 100,
+        # "loss": "MSELoss"
+        "loss": "MAELoss"
+        # "loss": "SelectiveAsymmetricMAELoss"
+        # "loss": "SelectiveAsymmetricMSELoss"
     }
 
     # 分别测试不同的模型
