@@ -7,6 +7,7 @@ from smart_pred.model.local.neuralforecast_model import NeuralForecast_model
 from smart_pred.model.local.passive import Movingavg_model, Movingmax_model, Movingmin_model
 from smart_pred.model.local.period import Maxvalue_model, Minvalue_model, Avgvalue_model
 from smart_pred.model.local.quantile import Quantile_model
+from smart_pred.model.local.histogram import Histogram_model
 from smart_pred.utils.metrics import  selective_asymmetric_sample_loss_mae, selective_asymmetric_sample_loss_mse
 import numpy as np
 from smart_pred.utils.metrics import get_metric_dict
@@ -24,6 +25,7 @@ fusion_model_dict = {
     "Minvalue_model": Minvalue_model(name="Minvalue_model"),
     "Avgvalue_model": Avgvalue_model(name="Avgvalue_model"),
     "Quantile_model": Quantile_model(name="Quantile_model"),
+    "Histogram_model": Histogram_model(name="Histogram_model"),
 }
 
 

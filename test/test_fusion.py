@@ -93,6 +93,12 @@ class TestFusionModel:
                 "is_round": False,
                 "quantile": 0.5,
             },
+            "Histogram_model": {
+                "seq_len": 1440 * 3,
+                "pred_len": 1440,
+                "is_scaler": False,
+                "is_round": False,
+            },
         }
         self.model = Fusion_model(fusion_model_params_dict=self.fusion_model_params_dict)
 
@@ -165,7 +171,7 @@ class TestFusionModel:
             "period_length": 1440,
             "complex_model_list": ["NHITS", "NBEATS", "PatchTST", "DLinear"],
             # "simple_model_list": ["Movingavg_model", "Movingmax_model", "Movingmin_model", "Maxvalue_model", "Minvalue_model", "Avgvalue_model", "Quantile_model"],
-            "simple_model_list": ["Movingavg_model", "Maxvalue_model" ],
+            "simple_model_list": ["Movingavg_model", "Maxvalue_model", "Histogram_model"],
             "loss": "SelectiveAsymmetricMAELoss",
             "determine_ratio": 1,
             "is_scaler": False,

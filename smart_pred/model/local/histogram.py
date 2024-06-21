@@ -32,7 +32,6 @@ class Histogram_model(Basic_model):
             "pred_len": 720,
             "is_scaler": False,
             "is_round": True,
-
         }
         pass
 
@@ -154,7 +153,7 @@ class Histogram_model(Basic_model):
             test = self.scaler.inverse_transform(test.reshape(-1, 1)).reshape(-1, )
 
         # 指标计算
-        metrics_dict = get_metric_dict(y_pred=predict_list, y_test=test)
+        metrics_dict = get_metric_dict(y_pred=predict, y_test=test)
 
         # 收集日志
         log_dict = {
@@ -167,7 +166,7 @@ class Histogram_model(Basic_model):
         log_dict.update(metrics_dict)
         print(f"log:{log_dict}")
 
-        return log_dict, predict_list
+        return log_dict, predict
 
 
 class OpenFaaS_model(Histogram_model):
