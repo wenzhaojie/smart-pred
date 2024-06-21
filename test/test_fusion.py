@@ -1,5 +1,12 @@
 from smart_pred.solution.fusion_algorithm.fusion_model import Fusion_model
 from smart_pred.dataset.crane_trace import CraneDataset
+from py_plotter.plot import Plotter
+
+
+my_plotter = Plotter(
+    figsize=(10, 6),
+    font_thirdparty="YaHei",
+)
 
 
 class TestFusionModel:
@@ -22,25 +29,92 @@ class TestFusionModel:
         return data
 
 
-    def test_train(self):
+    def test_train_test(self):
         # 用 crane 数据集中第9个函数来测试
         function_name = "9"
         data = self.get_crane_trace_data(function_name=function_name)
 
+        print(f"len(data):{len(data)}")
+
+        # 划分训练集和测试集，前4天为训练集，第5天为测试集
+        train_data = data[0:1440*4]
+        test_data = data[1440*4:1440*5]
+
+
+
         # extra_parameters
         extra_parameters = {
-            "seq_len": 1440 * 3,
+            "seq_len": 1440 * 4,
             "pred_len": 1440,
             "period_length": 1440,
             "complex_model_list": ["NHITS", "NBEATS", "PatchTST", "DLinear"],
             "simple_model_list": ["Movingavg_model", "Movingmax_model", "Movingmin_model", "Maxvalue_model", "Minvalue_model", "Avgvalue_model", "Quantile_model"],
-            "loss": "MSELoss",
+            "loss": "SelectiveAsymmetricMAELoss",
+            "determine_ratio": 0.9,
             "is_scaler": False,
             "is_round": False,
         }
 
         # 训练
-        self.model.train(history=data, extra_parameters=extra_parameters)
+        self.model.train(history=train_data, extra_parameters=extra_parameters)
+
+        # 预测
+        predict  = self.model.predict(history=train_data, predict_window=1440, extra_parameters=extra_parameters)
+
+        print(f"predict:{predict}")
+
+
+    def test_use_future_evaluation(self):
+        # 用 crane 数据集中第9个函数来测试
+        function_name = "9"
+        data = self.get_crane_trace_data(function_name=function_name)
+
+        print(f"len(data):{len(data)}")
+
+        # 划分训练集和测试集，前4天为训练集，第5天为测试集
+        train_data = data[0:1440*4]
+        test_data = data[1440*4:1440*5]
+
+        # extra_parameters
+        extra_parameters = {
+            "seq_len": 1440 * 4,
+            "pred_len": 1440,
+            "period_length": 1440,
+            "complex_model_list": ["NHITS", "NBEATS", "PatchTST", "DLinear"],
+            "simple_model_list": ["Movingavg_model", "Movingmax_model", "Movingmin_model", "Maxvalue_model", "Minvalue_model", "Avgvalue_model", "Quantile_model"],
+            # "simple_model_list": ["Avgvalue_model", "Quantile_model", "Maxvalue_model",],
+            "loss": "SelectiveAsymmetricMAELoss",
+            "determine_ratio": 1.0,
+            "is_scaler": False,
+            "is_round": False,
+        }
+
+        # 训练
+        self.model.train(history=train_data, extra_parameters=extra_parameters)
+
+        # 预测
+        log_dict, predict  = self.model.use_future_rolling_evaluation(train=train_data, test=test_data, extra_parameters=extra_parameters)
+        print(f"log_dict:{log_dict}")
+        print(f"predict:{predict}")
+        print(f"true:{test_data}")
+
+        plot_true = test_data[0:1440]
+        plot_pred = predict[0:1440]
+
+        # 画图
+        x = [i for i in range(len(plot_true))]
+        filename = "fusion_model_evaluation.png"
+        my_plotter.plot_lines(
+            x_list=[x, x],
+            line_data_list=[plot_true, plot_pred],
+            legend_label_list=["true", "pred"],
+            filename=filename,
+            x_label="time",
+            y_label="value",
+            save_root="plot",
+            x_tick_ndigits=0,
+            y_tick_ndigits=0,
+        )
 
 
 
@@ -49,4 +123,5 @@ class TestFusionModel:
 
 if __name__ == "__main__":
     test_fusion_model = TestFusionModel()
-    test_fusion_model.test_train()
+    test_fusion_model.test_train_test()
+    # test_fusion_model.test_use_future_evaluation()
