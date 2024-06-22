@@ -22,6 +22,7 @@ class Basic_model:
             "is_round": False,
             "period_length": 1440,
             "start_at_period": 0,
+            "amplify": 1.0
         }
 
     def get_scaler(self):
@@ -183,6 +184,13 @@ class Basic_model:
         predict = predict[:len(test)]
 
         print(f"len(predict):{len(predict)}")
+
+        # predict amplify
+        if "amplify" in extra_parameters.keys():
+            amplify = extra_parameters["amplify"]
+            print(f"放大系数: {amplify}")
+            predict = [item * amplify for item in predict]
+            predict = np.array(predict)
 
         # 计算评估指标
         metric_dict = get_metric_dict(test, predict)

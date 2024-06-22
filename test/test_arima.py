@@ -46,6 +46,7 @@ class TestArimaModel:
             "is_scaler": False,
             "is_round": False,
             "season_length": 1440,
+            "amplify": 1.0
         }
 
         # 训练

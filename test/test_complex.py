@@ -12,6 +12,7 @@ def plot_a_figure(function_name="9"):
         # "loss": "MAELoss",
         "loss": "MSELoss",
         "max_steps": 500,
+        "amplify": 1.0
     }
 
     # model_name = "NBEATS"
@@ -36,7 +37,7 @@ def plot_a_figure(function_name="9"):
     # 预测下一个周期的点
     model = NeuralForecast_model(name=model_name)
     model.train(history, extra_parameters=extra_parameters)
-    prediction = model.predict(history, predict_window=1440, extra_parameters=extra_parameters)
+    log_dict, prediction = model.use_future_rolling_evaluation(train=history, test=true, extra_parameters=extra_parameters)
     print("下一个周期的预测值:", prediction)
 
     # 画图

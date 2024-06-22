@@ -44,7 +44,7 @@ class Fusion_model(Basic_model):
             "determine_ratio": 0.8,
             "loss_threshold": 0.1,
             "is_complex": True,
-            "amp": 1.1,
+            "amplify": 1.1,
         }
         self.fusion_model_params_dict = fusion_model_params_dict
 
@@ -188,8 +188,8 @@ class Fusion_model(Basic_model):
             predict = 0
             for model_name in model_predict_list_dict.keys():
                 predict += model_predict_list_dict[model_name][i] * self.model_weight_dict[model_name][i]
-                # amp
-                predict = predict * extra_parameters["amp"]
+                # amplify
+                predict = predict * extra_parameters["amplify"]
             predict_list.append(predict)
 
         return predict_list
@@ -235,8 +235,8 @@ class Fusion_model(Basic_model):
             predict = 0
             for model_name in model_predict_list_dict.keys():
                 predict += model_predict_list_dict[model_name][i] * self.model_weight_dict[model_name][i]
-                # amp
-                predict = predict * extra_parameters["amp"]
+                # amplify
+                predict = predict * extra_parameters["amplify"]
             predict_list.append(predict)
 
         # 如果预测的长度超过了test的长度，需要截断
