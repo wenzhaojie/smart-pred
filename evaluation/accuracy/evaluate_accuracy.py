@@ -123,8 +123,5 @@ trace_dict = {
     },
 }
 
-def get_metric_from_trace(train_data, test_data):
 
 
-
-    pass
