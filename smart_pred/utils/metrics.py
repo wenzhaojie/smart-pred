@@ -310,7 +310,6 @@ def test_sample_loss():
     print(f"selective_asymmetric_sample_loss_mse: {_selective_asymmetric_sample_loss_mse}")
 
 
-
 if __name__ == "__main__":
     # test_get_metric_dict()
     test_sample_loss()

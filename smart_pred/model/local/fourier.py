@@ -191,6 +191,8 @@ class Icebreaker_model(Basic_model):
         if extra_parameters["is_scaler"]:
             predict = self.scaler.inverse_transform(predict.reshape(-1, 1)).reshape(-1)
 
+        # 如果小于0，设置为0
+        predict = np.where(predict < 0, 0, predict)
         return list(predict)
 
 

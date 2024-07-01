@@ -7,7 +7,6 @@ def plot_a_figure_ice(function_name="9"):
         "pred_len": 1440,
         "is_scaler": False,
         "is_round": False,
-        "period": 1440,
     }
 
     # 获取Crane数据
@@ -63,7 +62,6 @@ def plot_a_figure_dsp(function_name="9"):
         "pred_len": 1440,
         "is_scaler": False,
         "is_round": False,
-        "period": 1440,
     }
 
     # 获取Crane数据
@@ -81,9 +79,17 @@ def plot_a_figure_dsp(function_name="9"):
     history = trace[:-1440]
     true = trace[-1440:]
 
+    print(f'len(history):{len(history)}')
+    print(f'len(true):{len(true)}')
+
     # 预测下一个周期的点
     model = Crane_dsp_model()
-    prediction = model.predict(history, predict_window=1440, extra_parameters=extra_parameters)
+    # prediction = model.predict(history, predict_window=1440, extra_parameters=extra_parameters)、
+    _, prediction = model.use_future_rolling_evaluation(
+        train=history,
+        test=true,
+        extra_parameters=extra_parameters
+    )
     print("下一个周期的预测值:", prediction)
 
     # 画图
@@ -116,5 +122,5 @@ def plot_a_figure_dsp(function_name="9"):
 
 if __name__ == "__main__":
     plot_a_figure_ice(function_name="9")
-    plot_a_figure_dsp(function_name="9")
+    # plot_a_figure_dsp(function_name="9")
 

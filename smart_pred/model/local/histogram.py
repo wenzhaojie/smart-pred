@@ -119,11 +119,11 @@ class Histogram_model(Basic_model):
                 # 进行预测
                 prewarm_time, keepalive_time = self.cal_windows(history=history_seq)
                 warm_range = (pointer + prewarm_time, pointer + prewarm_time + keepalive_time)
-                print(f"warm_range:{warm_range}")
+                # print(f"warm_range:{warm_range}")
 
             # 查看当前的predict值
             if pointer >= warm_range[0] and pointer <= warm_range[1]:
-                print(f"落入缓存范围")
+                # print(f"落入缓存范围")
                 predict = last_concurrency  # 预测值为上一次的调用
             else:
                 predict = 0
@@ -137,7 +137,7 @@ class Histogram_model(Basic_model):
                 prewarm_time, keepalive_time = self.cal_windows(history=history_seq)
                 warm_range = (pointer + prewarm_time, pointer + prewarm_time + keepalive_time)
                 last_concurrency = test[pointer]
-                print(f"有调用，更新warm_range和last_concurrency:{warm_range},{last_concurrency}")
+                # print(f"有调用，更新warm_range和last_concurrency:{warm_range},{last_concurrency}")
 
             pointer += 1
 
