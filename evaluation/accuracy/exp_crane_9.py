@@ -9,7 +9,7 @@ def start_exp():
     my_exp.init_baselines(
         # baselines_name_list=["Keepalive", "Crane", "Icebreaker", "SmartPred", "NHITS", "NBEATS", "PatchTST", "DLinear"],
         baselines_name_list=["Maxvalue", "Minvalue", "Avgvalue", "Movingavg", "Movingmax", "Movingmin", "Quantile",
-                             "SmartPred", "NHITS", "NBEATS", "PatchTST", "DLinear"],
+                             "SmartPred", "NHITS", "NBEATS", "PatchTST", "DLinear",],
         baselines_config_dict={
             "NHITS": {
                 "seq_len": 1440,
@@ -144,10 +144,10 @@ def start_exp():
                 "complex_model_list": ["NHITS", "NBEATS", "PatchTST", "DLinear"],
                 "simple_model_list": ["Movingmax_model", "Movingavg_model", "Maxvalue_model", "Histogram_model"],
                 "loss": "SelectiveAsymmetricMAELoss",
-                "determine_ratio": 1,
+                "determine_ratio": 0.9,
                 "is_scaler": False,
                 "is_round": False,
-                "amplify": 1.00,
+                "amplify": 1.02,
                 "is_complex": False,
                 "delta_t": 120,
                 "epsilon": 1.5,
@@ -155,7 +155,6 @@ def start_exp():
             },
         }
     )
-
     my_exp.evaluation()
 
 

@@ -67,7 +67,7 @@ def start_exp():
                 "is_scaler": False,
                 "is_round": False,
                 "max_steps": 100,
-                "amplify": 1.0,
+                "amplify": 1,
             },
             "Movingmin": {
                 "seq_len": 1440 * 3,
@@ -144,14 +144,14 @@ def start_exp():
                 "complex_model_list": ["NHITS", "NBEATS", "PatchTST", "DLinear"],
                 "simple_model_list": ["Movingmax_model", "Movingavg_model", "Maxvalue_model", "Histogram_model"],
                 "loss": "SelectiveAsymmetricMAELoss",
-                "determine_ratio": 1,
+                "determine_ratio": 0.9,
                 "is_scaler": False,
                 "is_round": False,
-                "amplify": 1.00,
+                "amplify": 1.02,
                 "is_complex": False,
                 "delta_t": 120,
                 "epsilon": 1.5,
-                "bursty_quantile": 0.99,
+                "bursty_quantile": 0.999,
             },
         }
     )

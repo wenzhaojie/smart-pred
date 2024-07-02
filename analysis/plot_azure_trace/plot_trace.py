@@ -83,9 +83,9 @@ def plot_second_day_azure_trace():
 
 
 if __name__ == "__main__":
-    # plot_all_azure_trace()
+    plot_all_azure_trace()
     # print("Done!")
-    plot_first_day_azure_trace()
+    # plot_first_day_azure_trace()
     print("Done!")
     # plot_second_day_azure_trace()
     # print("Done!")
